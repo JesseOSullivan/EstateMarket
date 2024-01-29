@@ -16,8 +16,9 @@ export default function RootLayout({
     <ThemeProvider theme={theme}>
           <html>
 
-      <body className={`${inter.className} antialiased`}>       
+      <body style={{backgroundColor:'#f8f9fa'}} className={`${inter.className} antialiased`}>       
       <Navbar />
+
       {children}
       </body>
       </html>

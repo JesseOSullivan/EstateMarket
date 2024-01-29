@@ -8,15 +8,15 @@ const theme = createTheme({
       light: '#66b3ff', // Light Blue
     },
     secondary: {
-      main: '#adb5bd', // gray
+      main: '#adb5bd', // gray dark
     },
     background: {
-      default: '#f8f9fa', // gray
+      default: '#f8f9fa', // gray light
       
     },
     text: {
-      primary: '#333333', // or any color for primary text
-      secondary: '#ffffff', // or any color for secondary text
+      primary: '#333333', // light black 
+      secondary: '#ffffff', // white
     },
   },
   // You can also add other theme customizations here

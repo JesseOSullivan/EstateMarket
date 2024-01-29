@@ -3,7 +3,10 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useTheme } from '@mui/material/styles';
 import logo from "@/logo.png";
-import Image from 'next/image'
+import Image from 'next/image';
+import MenuIcon from '@mui/icons-material/Menu';
+import Divider from '@mui/material/Divider';
+import Button from '@mui/material/Button';
 
 const Navbar = () => {
   const [nav, setNav] = useState(false);
@@ -33,40 +36,81 @@ const Navbar = () => {
   ];
 
   return (
-    <div style={{ backgroundColor: theme.palette.background.default }} className="flex justify-between items-center w-full h-20 px-4 fixed nav">
-      <div className="pl-8">
+    <div style={{ backgroundColor: theme.palette.background.default, zIndex: 1000 }} className="flex justify-between items-center w-full h-20 px-4 fixed top-0 left-0 right-0 nav">
 
-        <Image
-          src={logo}
-          width={250}
-          alt="Picture of the author"
-        />
-
+      {/* Logo */}
+      <div className="flex justify-center w-full md:w-auto">
+        <Link href={`/`}>
+          <Image src={logo} width={250} alt="Estate Market" />
+        </Link>
       </div>
 
-      <ul className="hidden md:flex">
+      {/* Navigation Links */}
+      <ul className="hidden md:flex justify-center w-full">
         {links.map(({ id, link }) => (
-          <li key={id} style={{ color: theme.palette.text.primary }} className="px-4 cursor-pointer capitalize font-medium text-white hover:text-gray-300 transition duration-300">
-            <Link href={`/${link}`}>{link}</Link>
-          </li>
+          <React.Fragment key={id}>
+            <li className="px-4 cursor-pointer capitalize font-medium text-black hover:text-gray-300 transition duration-300">
+              <Link href={`/${link}`}>{link}</Link>
+            </li>
+            {id < links.length && <Divider orientation="vertical" flexItem />}
+          </React.Fragment>
         ))}
       </ul>
 
-      <div onClick={() => setNav(!nav)} className="cursor-pointer pr-4 z-10 text-gray-200 md:hidden">
-        {/* Hamburger Icon */}
-      </div>
+      {/* Login/Sign Up Buttons */}
+      <div className="hidden md:flex justify-end items-center gap-2 mr-4">
+      <Button
+  variant="contained"
+  style={{
+    backgroundColor: theme.palette.primary.main,
+    color: '#fff', // Text color
+    padding: '8px 15px', // Keep the padding
+    textTransform: 'none',
+    letterSpacing: 'normal',
+    fontWeight: 'bold',
+    fontSize: '15px', // Keep the font size
+    minWidth: '150px', // Increase the minWidth for a wider button
+    borderRadius: '10px', // Reduced border radius
+    boxShadow: 'none', // Remove box shadow
+    whiteSpace: 'nowrap', // Prevent line break
+    transition: 'background-color 0.2s ease', // Add hover transition
+  }}
+  // Hover style
+  sx={{
+    '&:hover': {
+      backgroundColor: theme.palette.primary.dark, // Change the background color on hover
+    },
+  }}
+>
+  Login
+</Button>
 
-      {nav && (
-        <ul className="flex flex-col justify-center items-center absolute top-0 left-0 w-full h-screen bg-gradient-to-b from-black to-gray-800 text-white">
-          {links.map(({ id, link }) => (
-            <li key={id} className="px-4 cursor-pointer capitalize py-6 text-4xl">
-              <Link onClick={() => setNav(!nav)} href={`/${link}`}>
-                {link}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+<Button
+  variant="contained"
+  style={{
+    backgroundColor: theme.palette.secondary.main,
+    color: '#fff', // Text color
+    padding: '8px 15px', // Keep the padding
+    textTransform: 'none',
+    letterSpacing: 'normal',
+    fontWeight: 'bold',
+    fontSize: '15px', // Keep the font size
+    minWidth: '150px', // Increase the minWidth for a wider button
+    borderRadius: '10px', // Reduced border radius
+    boxShadow: 'none', // Remove box shadow
+    whiteSpace: 'nowrap', // Prevent line break
+    transition: 'background-color 0.2s ease', // Add hover transition
+  }}
+  // Hover style
+  sx={{
+    '&:hover': {
+      backgroundColor: theme.palette.secondary.dark, // Change the background color on hover
+    },
+  }}
+>
+  Sign Up
+</Button>
+      </div>
     </div>
   );
 };

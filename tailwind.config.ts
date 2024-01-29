@@ -8,6 +8,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        'sm': '300px',
+        // => @media (min-width: 992px) { ... }
+      },
+
       gridTemplateColumns: {
         '13': 'repeat(13, minmax(0, 1fr))',
       },

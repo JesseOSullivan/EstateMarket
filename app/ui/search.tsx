@@ -1,45 +1,135 @@
 'use client';
 
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+// Import necessary modules and types
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import { useDebouncedCallback } from 'use-debounce';
+import Autocomplete, { AutocompleteChangeReason,  } from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import InputAdornment from '@mui/material/InputAdornment';
 
-export default function Search({ placeholder }: { placeholder: string }) {
+// Define the props type for the Search component
+type SearchProps = {
+  placeholder: string;
+};
+
+// Define the Search component with TypeScript
+export default function Search({ placeholder }: SearchProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { replace } = useRouter();
+  const router = useRouter();
+  const [inputValue, setInputValue] = useState('');
 
-  const handleSearch = useDebouncedCallback((term) => {
-    console.log(`Searching... ${term}`);
+  // Update the inputValue when the searchParams change
+  useEffect(() => {
+    const query = searchParams.get('query');
+    if (query) {
+      setInputValue(query);
+    }
+  }, [searchParams]);
 
+  // Function to handle search execution
+  const executeSearch = (value: string) => {
+    console.log(`Searching... ${value}`);
     const params = new URLSearchParams(searchParams);
     params.set('page', '1');
-
-    if (term) {
-      params.set('query', term);
+    if (value) {
+      params.set('query', value);
     } else {
       params.delete('query');
     }
-    replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
-  }, 300);
+  // Handle changes in the Autocomplete component
+  const handleAutocompleteChange = (
+    event: React.SyntheticEvent<Element, Event>,
+    newValue: string | null,
+    reason: AutocompleteChangeReason
+  ) => {
+    if (reason === 'selectOption' && newValue) {
+      executeSearch(newValue);
+    }
+  };
+
+  // Handle changes in the input value
+  const handleInputChange = (
+    event: React.SyntheticEvent<Element, Event>,
+    newInputValue: string
+  ) => {
+    setInputValue(newInputValue);
+  };
+
+  // Define options for Autocomplete
 
   return (
-    <div className="relative flex flex-1 flex-shrink-0">
-      <label htmlFor="search" className="sr-only">
-        Search
-      </label>
-      <input
-        className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
-        placeholder={placeholder}
-        onChange={(e) => {
-          handleSearch(e.target.value);
+<div className="relative flex items-center justify-center w-full md:max-w-3xl bg-white shadow-lg rounded-full focus:outline-none">
+      <Autocomplete
+      
+        freeSolo
+        disableClearable
+        options={searchOptions.map((option) => option)}
+        value={inputValue}
+        onChange={handleAutocompleteChange}
+        onInputChange={handleInputChange}
+        classes={{
+          root: 'w-full', // Set the width of the component
+          inputRoot: 'input-root bg-transparent ', // Remove outline on focus
+          input: 'input-input', // Apply custom class for input
+          popupIndicator: 'hidden', // Hide the default dropdown indicator
+          clearIndicator: 'hidden', // Hide the default clear indicator
         }}
-        defaultValue={searchParams.get('query')?.toString()}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            placeholder={placeholder}
+            fullWidth
 
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: (
+                <InputAdornment position="start">
+                </InputAdornment>
 
+              ),
+              className: "rounded-full py-4 pl-12 pr-4 focus:outline-none" // Remove outline on focus
+            }}
+          />
+        )}
       />
-      <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
     </div>
   );
 }
+
+const searchOptions: string[] = [
+  "Option 1",
+  "Option 2",
+  "Option 3",
+  "Option 4",
+  "Option 5",
+  "Option 6",
+  "Option 7",
+  "Option 8",
+  "Option 9",
+  "Option 10",
+  "Option 11",
+  "Option 12",
+  "Option 13",
+  "Option 14",
+  "Option 15",
+  "Option 16",
+  "Option 17",
+  "Option 18",
+  "Option 19",
+  "Option 20",
+  "Option 21",
+  "Option 22",
+  "Option 23",
+  "Option 24",
+  "Option 25",
+  "Option 26",
+  "Option 27",
+  "Option 28",
+  "Option 29",
+  "Option 30"
+];
