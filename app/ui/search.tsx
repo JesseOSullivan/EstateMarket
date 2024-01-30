@@ -63,20 +63,20 @@ export default function Search({ placeholder }: SearchProps) {
   // Define options for Autocomplete
 
   return (
-<div className="relative flex items-center justify-center w-full md:max-w-3xl bg-white shadow-lg rounded-full focus:outline-none">
+<div className="relative flex items-center justify-center w-full md:max-w-3xl bg-white shadow-lg rounded-full"> {/* Adjust width, background, and shadow as needed */}
       <Autocomplete
-      
+        
         freeSolo
         disableClearable
-        options={searchOptions.map((option) => option)}
+        options={searchOptions}
         value={inputValue}
         onChange={handleAutocompleteChange}
         onInputChange={handleInputChange}
         classes={{
-          root: 'w-full', // Set the width of the component
-          inputRoot: 'input-root bg-transparent ', // Remove outline on focus
-          input: 'input-input', // Apply custom class for input
-          popupIndicator: 'hidden', // Hide the default dropdown indicator
+      root: 'w-full', // Set the width of the component
+      inputRoot: 'input-root bg-transparent', // Ensure the background is transparent and apply custom class if needed
+      input: 'input-input', // Apply custom class for input
+              popupIndicator: 'hidden', // Hide the default dropdown indicator
           clearIndicator: 'hidden', // Hide the default clear indicator
         }}
         renderInput={(params) => (
@@ -84,7 +84,6 @@ export default function Search({ placeholder }: SearchProps) {
             {...params}
             placeholder={placeholder}
             fullWidth
-
             InputProps={{
               ...params.InputProps,
               startAdornment: (
@@ -92,7 +91,7 @@ export default function Search({ placeholder }: SearchProps) {
                 </InputAdornment>
 
               ),
-              className: "rounded-full py-4 pl-12 pr-4 focus:outline-none" // Remove outline on focus
+              className: "rounded-full py-4 pl-12 pr-4" // Tailwind classes for rounded edges and padding
             }}
           />
         )}

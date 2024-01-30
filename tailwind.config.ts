@@ -8,7 +8,16 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      screens: {
+      boxShadow: {
+        'none': 'none !important',
+      },
+      borderColor: {
+        'transparent': 'transparent !important',
+      },
+      outline: {
+        'none': 'none !important',
+      },
+        screens: {
         'sm': '300px',
         // => @media (min-width: 992px) { ... }
       },
