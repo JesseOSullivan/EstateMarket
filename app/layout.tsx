@@ -6,6 +6,7 @@ import Navbar from "@/app/ui/Navbar";
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '@/theme';
 
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export default function RootLayout({
   children,
@@ -22,6 +23,8 @@ export default function RootLayout({
       </div>
 
       {children}
+      <SpeedInsights />
+
       </body>
       </html>
       </ThemeProvider>
