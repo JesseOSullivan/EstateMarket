@@ -38,7 +38,7 @@ const Navbar = () => {
   return (
     <div style={{ backgroundColor: theme.palette.background.default, zIndex: 1000 }} className="flex justify-between items-center w-full h-20 px-4 fixed top-0 left-0 right-0">
       {/* Logo */}
-      <div className="flex justify-center w-full md:w-auto">
+      <div className="flex justify-center w-full ">
         <Link href={`/`}>
           <Image  priority src={logo} width={250} alt="Estate Market" 
                     loading='eager'
