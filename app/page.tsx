@@ -12,8 +12,9 @@ export default function HomePage() {
           alt="Hero Image"
           fill
           style={{objectFit:"cover", objectPosition:"50% 25%"}}
+          loading='eager'
+          priority 
         />
-
         {/* Responsive semi-transparent box with header text and search bar */}
         <div className="absolute inset-0 flex items-center justify-center  p-10">
           <div className="w-full  pt-8 max-w-3xl bg-black bg-opacity-40 rounded-lg overflow-hidden ">
