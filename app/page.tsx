@@ -17,11 +17,13 @@ export default function HomePage() {
           className="
           hidden
           md:block  
-          cursor-pointer
-        "
+          cursor-pointer"
+          priority 
+
 
         />
-        {/* Responsive semi-transparent box with header text and search bar */}
+
+ Responsive semi-transparent box with header text and search bar */}
         <div className="absolute inset-0 flex items-center justify-center  p-10">
           <div className="w-full  pt-8 max-w-3xl bg-black bg-opacity-40 rounded-lg overflow-hidden ">
             {/* Header text */}
