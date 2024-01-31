@@ -20,6 +20,7 @@ export default function HomePage() {
           md:block  
           cursor-pointer
         "
+        fetchPriority='high'
   
         />
         {/* Responsive semi-transparent box with header text and search bar */}
