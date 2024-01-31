@@ -15,7 +15,12 @@ export default function HomePage() {
           loading='eager'
           priority 
           rel="preload" 
-
+          className="
+          hidden
+          md:block  
+          cursor-pointer
+        "
+  
         />
         {/* Responsive semi-transparent box with header text and search bar */}
         <div className="absolute inset-0 flex items-center justify-center  p-10">
