@@ -36,17 +36,16 @@ const Navbar = () => {
   ];
 
   return (
-    <div style={{ backgroundColor: theme.palette.background.default, zIndex: 1000 }} className="flex justify-between items-center w-full h-20 px-4 fixed top-0 left-0 right-0 nav">
-
+    <div style={{ backgroundColor: theme.palette.background.default, zIndex: 1000 }} className="flex justify-between items-center w-full h-20 px-4 fixed top-0 left-0 right-0">
       {/* Logo */}
       <div className="flex justify-center w-full md:w-auto">
         <Link href={`/`}>
-          <Image src={logo} width={250} alt="Estate Market" />
+          <Image  priority src={logo} width={250} alt="Estate Market" />
         </Link>
       </div>
 
       {/* Navigation Links */}
-      <ul className="hidden md:flex justify-center w-full">
+      <ul className="hidden  	 md:flex justify-center w-full">
         {links.map(({ id, link }) => (
           <React.Fragment key={id}>
             <li className="px-4 cursor-pointer capitalize font-medium text-black hover:text-gray-300 transition duration-300">
@@ -59,57 +58,61 @@ const Navbar = () => {
 
       {/* Login/Sign Up Buttons */}
       <div className="hidden md:flex justify-end items-center gap-2 mr-4">
-      <Button
-  variant="contained"
-  style={{
-    backgroundColor: theme.palette.primary.main,
-    color: '#fff', // Text color
-    padding: '8px 15px', // Keep the padding
-    textTransform: 'none',
-    letterSpacing: 'normal',
-    fontWeight: 'bold',
-    fontSize: '15px', // Keep the font size
-    minWidth: '150px', // Increase the minWidth for a wider button
-    borderRadius: '10px', // Reduced border radius
-    boxShadow: 'none', // Remove box shadow
-    whiteSpace: 'nowrap', // Prevent line break
-    transition: 'background-color 0.2s ease', // Add hover transition
-  }}
-  // Hover style
-  sx={{
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark, // Change the background color on hover
-    },
-  }}
->
-  Login
-</Button>
+        <Button
+          variant="contained"
+          style={{
+            backgroundColor: theme.palette.primary.main,
+            color: '#fff', // Text color
+            padding: '8px 15px', // Keep the padding
+            textTransform: 'none',
+            letterSpacing: 'normal',
+            fontWeight: 'bold',
+            fontSize: '15px', // Keep the font size
+            minWidth: '150px', // Increase the minWidth for a wider button
+            borderRadius: '10px', // Reduced border radius
+            boxShadow: 'none', // Remove box shadow
+            whiteSpace: 'nowrap', // Prevent line break
+            transition: 'background-color 0.2s ease', // Add hover transition
+          }}
+          // Hover style
+          sx={{
+            '&:hover': {
+              backgroundColor: theme.palette.primary.dark, // Change the background color on hover
+            },
+          }}
+        >
+          Login
+        </Button>
 
-<Button
-  variant="contained"
-  style={{
-    backgroundColor: theme.palette.secondary.main,
-    color: '#fff', // Text color
-    padding: '8px 15px', // Keep the padding
-    textTransform: 'none',
-    letterSpacing: 'normal',
-    fontWeight: 'bold',
-    fontSize: '15px', // Keep the font size
-    minWidth: '150px', // Increase the minWidth for a wider button
-    borderRadius: '10px', // Reduced border radius
-    boxShadow: 'none', // Remove box shadow
-    whiteSpace: 'nowrap', // Prevent line break
-    transition: 'background-color 0.2s ease', // Add hover transition
-  }}
-  // Hover style
-  sx={{
-    '&:hover': {
-      backgroundColor: theme.palette.secondary.dark, // Change the background color on hover
-    },
-  }}
->
-  Sign Up
-</Button>
+        <Button
+          variant="contained"
+          style={{
+            backgroundColor: theme.palette.secondary.main,
+            color: '#fff', // Text color
+            padding: '8px 15px', // Keep the padding
+            textTransform: 'none',
+            letterSpacing: 'normal',
+            fontWeight: 'bold',
+            fontSize: '15px', // Keep the font size
+            minWidth: '150px', // Increase the minWidth for a wider button
+            borderRadius: '10px', // Reduced border radius
+            boxShadow: 'none', // Remove box shadow
+            whiteSpace: 'nowrap', // Prevent line break
+            transition: 'background-color 0.2s ease', // Add hover transition
+          }}
+          // Hover style
+          sx={{
+            '&:hover': {
+              backgroundColor: theme.palette.secondary.dark, // Change the background color on hover
+            },
+          }}
+        >
+          Sign Up
+        </Button>
+      </div>
+      {/* Hamburger Menu - Visible on small screens */}
+      <div className="md:hidden flex items-center">
+        {/* Implement a toggle button for a dropdown or off-canvas menu */}
       </div>
     </div>
   );

@@ -18,7 +18,11 @@ const config: Config = {
         'none': 'none !important',
       },
         screens: {
-        'sm': '300px',
+          'sm': '400px',
+          'md': '900px', // Change to 900px for the md breakpoint
+          'lg': '1024px',
+          'xl': '1280px',
+          
         // => @media (min-width: 992px) { ... }
       },
 

@@ -3,38 +3,42 @@
 // Import necessary modules and types
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import Autocomplete, { AutocompleteChangeReason,  } from '@mui/material/Autocomplete';
+import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import Chip from '@mui/material/Chip';
 import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search'; // You'll need to import the appropriate search icon from Material-UI
 
 // Define the props type for the Search component
 type SearchProps = {
   placeholder: string;
 };
 
+
+
 // Define the Search component with TypeScript
 export default function Search({ placeholder }: SearchProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const [inputValue, setInputValue] = useState('');
-
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   // Update the inputValue when the searchParams change
   useEffect(() => {
     const query = searchParams.get('query');
     if (query) {
-      setInputValue(query);
+      setSelectedOptions(query.split(','));
     }
   }, [searchParams]);
 
+
+
   // Function to handle search execution
-  const executeSearch = (value: string) => {
-    console.log(`Searching... ${value}`);
+  const executeSearch = (values: string[]) => {
+    console.log(`Searching... ${values.join(', ')}`);
     const params = new URLSearchParams(searchParams);
     params.set('page', '1');
-    if (value) {
-      params.set('query', value);
+    if (values.length > 0) {
+      params.set('query', values.join(','));
     } else {
       params.delete('query');
     }
@@ -42,14 +46,9 @@ export default function Search({ placeholder }: SearchProps) {
   };
 
   // Handle changes in the Autocomplete component
-  const handleAutocompleteChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    newValue: string | null,
-    reason: AutocompleteChangeReason
-  ) => {
-    if (reason === 'selectOption' && newValue) {
-      executeSearch(newValue);
-    }
+  const handleAutocompleteChange = (event: React.SyntheticEvent, newValues: string[]) => {
+    setSelectedOptions(newValues);
+    executeSearch(newValues);
   };
 
   // Handle changes in the input value
@@ -57,42 +56,50 @@ export default function Search({ placeholder }: SearchProps) {
     event: React.SyntheticEvent<Element, Event>,
     newInputValue: string
   ) => {
-    setInputValue(newInputValue);
+    //setInputValue(newInputValue);
   };
 
-  // Define options for Autocomplete
-
+  // Render tags as chips in the Autocomplete
+  const renderTags = (value: string[], getTagProps: (value: any) => any) =>
+    value.map((option: string, index: number) => (
+      <Chip key={index} label={option} {...getTagProps({ index })} />
+    ));
+    
   return (
-<div className="relative flex items-center justify-center w-full md:max-w-3xl bg-white shadow-lg rounded-full"> {/* Adjust width, background, and shadow as needed */}
+    <div className="relative flex items-center justify-center w-full md:max-w-3xl bg-white shadow-lg " 
+    style={{borderRadius: '30px'}}
+    >
       <Autocomplete
+        multiple
+        id="field1"
         
+        autoComplete={false}
         freeSolo
         disableClearable
         options={searchOptions}
-        value={inputValue}
+        value={selectedOptions}
         onChange={handleAutocompleteChange}
-        onInputChange={handleInputChange}
+        renderTags={renderTags}
         classes={{
-      root: 'w-full', // Set the width of the component
-      inputRoot: 'input-root bg-transparent', // Ensure the background is transparent and apply custom class if needed
-      input: 'input-input', // Apply custom class for input
-              popupIndicator: 'hidden', // Hide the default dropdown indicator
-          clearIndicator: 'hidden', // Hide the default clear indicator
+          root: 'w-full',
+          inputRoot: 'input-root bg-transparent',
+          input: 'input-input',
+          popupIndicator: 'hidden',
+          clearIndicator: 'hidden',
         }}
         renderInput={(params) => (
+          
           <TextField
+          autoComplete='off'
             {...params}
             placeholder={placeholder}
-            fullWidth
             InputProps={{
+              autoComplete: 'new-password',
               ...params.InputProps,
-              startAdornment: (
-                <InputAdornment position="start">
-                </InputAdornment>
-
-              ),
-              className: "rounded-full py-4 pl-12 pr-4" // Tailwind classes for rounded edges and padding
+              style: {     borderRadius: '30px'},
+          
             }}
+
           />
         )}
       />
