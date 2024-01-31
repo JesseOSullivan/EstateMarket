@@ -6,7 +6,7 @@ import Search from '@/app/ui/search';
 export default function HomePage() {
   return (
     <div className=" flex flex-col items-center justify-center bg-gray-100">
-      <div className="relative w-full  h-[80vh]   sm:h-[70vh] bg-gray-800">
+      <div className="relative w-full  h-[80vh]    bg-gray-800">
         <Image
           src={hero}
           alt="Hero Image"
