@@ -62,7 +62,7 @@ export default function Search({ placeholder }: SearchProps) {
   // Render tags as chips in the Autocomplete
   const renderTags = (value: string[], getTagProps: (value: any) => any) =>
     value.map((option: string, index: number) => (
-      <Chip key={index} label={option} {...getTagProps({ index })} />
+      <Chip  key={index} label={option} {...getTagProps({ index })} />
     ));
     
   return (
@@ -72,7 +72,6 @@ export default function Search({ placeholder }: SearchProps) {
       <Autocomplete
         multiple
         id="field1"
-        
         autoComplete={false}
         freeSolo
         disableClearable

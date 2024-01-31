@@ -17,7 +17,7 @@ export default function RootLayout({
           <html>
 
       <body style={{backgroundColor:'#f8f9fa'}} className={`${inter.className} antialiased`}>       
-      <div className='mb-10'>
+      <div className='py-10'>
       <Navbar />
       </div>
 

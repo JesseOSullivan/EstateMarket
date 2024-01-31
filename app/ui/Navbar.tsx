@@ -43,13 +43,7 @@ const Navbar = () => {
           <Image  priority src={logo} width={250} alt="Estate Market" 
                     loading='eager'
                     rel="preload" 
-                    className="
-                    hidden
-                    md:block  
-                    cursor-pointer"
-                  fetchPriority='high'
-          
-          />
+                  fetchPriority='high'/>
         </Link>
       </div>
 

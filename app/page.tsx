@@ -5,8 +5,8 @@ import Search from '@/app/ui/search';
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-100">
-      <div className="relative w-full  h-[70vh] bg-gray-800">
+    <div className=" flex flex-col items-center justify-center bg-gray-100">
+      <div className="relative w-full  h-[80vh]   sm:h-[70vh] bg-gray-800">
         <Image
           src={hero}
           alt="Hero Image"
@@ -14,19 +14,15 @@ export default function HomePage() {
           style={{objectFit:"cover", objectPosition:"50% 25%"}}
           loading='eager'
           rel="preload" 
-          className="
-          hidden
-          md:block  
-          cursor-pointer"
         fetchPriority='high'
 
         />
 
  {/* Responsive semi-transparent box with header text and search bar */}
-        <div className="absolute inset-0 flex items-center justify-center  p-10">
-          <div className="w-full  pt-8 max-w-3xl bg-black bg-opacity-40 rounded-lg overflow-hidden ">
+        <div className="absolute inset-0 flex items-center justify-center    p-10">
+          <div className="w-full  pt-8 max-w-3xl bg-black bg-opacity-40  rounded-lg  overflow-hidden ">
             {/* Header text */}
-            <div className="text-white text-3xl font-bold p-8 text-center ">
+            <div className="text-white text-3xl font-bold sm:p-8 text-center ">
               Find Your Dream Home
             </div>
 
