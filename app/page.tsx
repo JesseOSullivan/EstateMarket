@@ -13,7 +13,6 @@ export default function HomePage() {
           fill
           style={{objectFit:"cover", objectPosition:"50% 25%"}}
           loading='eager'
-          priority 
           rel="preload" 
           className="
           hidden
