@@ -40,7 +40,16 @@ const Navbar = () => {
       {/* Logo */}
       <div className="flex justify-center w-full md:w-auto">
         <Link href={`/`}>
-          <Image  priority src={logo} width={250} alt="Estate Market" />
+          <Image  priority src={logo} width={250} alt="Estate Market" 
+                    loading='eager'
+                    rel="preload" 
+                    className="
+                    hidden
+                    md:block  
+                    cursor-pointer"
+                  fetchPriority='high'
+          
+          />
         </Link>
       </div>
 
