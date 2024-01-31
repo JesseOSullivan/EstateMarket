@@ -14,6 +14,8 @@ export default function HomePage() {
           style={{objectFit:"cover", objectPosition:"50% 25%"}}
           loading='eager'
           priority 
+          rel="preload" 
+
         />
         {/* Responsive semi-transparent box with header text and search bar */}
         <div className="absolute inset-0 flex items-center justify-center  p-10">
