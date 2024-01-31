@@ -12,6 +12,15 @@ export default function HomePage() {
           alt="Hero Image"
           fill
           style={{objectFit:"cover", objectPosition:"50% 25%"}}
+          loading='eager'
+          priority 
+          rel="preload" 
+          className="
+          hidden
+          md:block  
+          cursor-pointer
+        "
+        fetchPriority='high'
 
         />
         {/* Responsive semi-transparent box with header text and search bar */}
