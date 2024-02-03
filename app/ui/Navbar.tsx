@@ -36,7 +36,7 @@ const Navbar = () => {
   ];
 
   return (
-    <div style={{ backgroundColor: theme.palette.background.default, zIndex: 1000 }} className="flex justify-between items-center w-full h-20 px-4 fixed top-0 left-0 right-0">
+    <div style={{ backgroundColor: theme.palette.background.default,  }} className="flex justify-between items-center  h-20 px-4 fixed top-0 left-0 right-0">
       {/* Logo */}
       <div className="flex justify-center w-full md:w-auto">
         <Link href={`/`}>
@@ -67,7 +67,7 @@ const Navbar = () => {
       flex: 1, // Allow the button to grow and fill the space
       backgroundColor: theme.palette.primary.main,
       color: '#fff',
-      padding: '6px 20px',
+      padding: '6px 30px',
       textTransform: 'none',
       letterSpacing: 'normal',
       fontWeight: 'bold',
@@ -92,7 +92,7 @@ const Navbar = () => {
       flex: 1, // Similarly, allow this button to grow and fill the space
       backgroundColor: theme.palette.secondary.main,
       color: '#fff',
-      padding: '6px 20px',
+      padding: '6px 30px',
       textTransform: 'none',
       letterSpacing: 'normal',
       fontWeight: 'bold',

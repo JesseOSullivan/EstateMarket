@@ -49,11 +49,19 @@ export default function Search({ placeholder }: SearchProps) {
     setSelectedOptions(newValues);
     executeSearch(newValues);
   };
+  
+  const handleSearchButtonClick = () => {
+    const params = new URLSearchParams(searchParams);
+    router.replace(`${pathname + 'estates'}?${params.toString()}`);
+  }
+    
 
   const renderTags = (value: string[], getTagProps: (value: any) => any) =>
     value.map((option: string, index: number) => (
       <Chip key={index} label={option} {...getTagProps({ index })} />
     ));
+
+
 
   return (
     <Box className="relative flex   items-center justify-center w-full md:max-w-3xl bg-white shadow-lg"
@@ -93,7 +101,7 @@ export default function Search({ placeholder }: SearchProps) {
               <IconButton className="p-2" onClick={() => {/* Handler for filter action */ }}>
                 <TuneIcon />
               </IconButton>
-              <IconButton className="p-2" onClick={() => executeSearch(selectedOptions)}>
+              <IconButton className="p-2" onClick={handleSearchButtonClick}>
                 <SearchIcon />
               </IconButton>
             </Box>
