@@ -24,7 +24,7 @@ export default function HomePage() {
           <div className="w-full  pt-8 max-w-3xl bg-black bg-opacity-40  rounded-lg  overflow-hidden ">
             {/* Header text */}
             <div className="text-white text-3xl font-bold sm:p-8 text-center ">
-              Find Your Dream Home
+              Find Your Dream Home {/* will add code to make it change with cool annimations */}
             </div>
 
             {/* Search component with slightly transparent background */}
