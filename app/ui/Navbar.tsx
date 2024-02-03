@@ -2,12 +2,16 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useTheme } from '@mui/material/styles';
-import logo from "@/logo.png";
 import Image from 'next/image';
-import MenuIcon from '@mui/icons-material/Menu';
+import logo from "@/logo.png";
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 import { animated, useSpring } from '@react-spring/web';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+
+
+
 
 const Navbar = () => {
   const theme = useTheme();
@@ -43,15 +47,22 @@ const Navbar = () => {
   const menuAnimation = useSpring({
     to: { 
       opacity: mobileMenuOpen ? 1 : 0, 
-      transform: mobileMenuOpen ? `translateY(0)` : `translateY(-100vh)` // Use vh for full viewport height
+      transform: mobileMenuOpen ? `translateX(0)` : `translateX(100%)`, 
     },
     from: { 
       opacity: 0, 
-      transform: `translateY(-100vh)`,
+      transform: `translateX(100%)`,
+    },
+    
+    config: {
+      tension: 210,
+      friction: 20,
     },
   });
+
   
   return (
+
     <div style={{ backgroundColor: theme.palette.background.default }} className="flex justify-between items-center h-20 px-4 fixed top-0 left-0 right-0">
       {/* Logo */}
       <div className="flex justify-center w-full md:w-auto">
@@ -127,13 +138,19 @@ const Navbar = () => {
       {/* Hamburger Menu */}
       <div className="md:hidden flex items-center">
         <Button onClick={toggleMobileMenu}>
-          <MenuIcon />
+          {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
         </Button>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <animated.div style={menuAnimation} className="md:hidden translateY(-100%) absolute top-20 right-0 left-0 bg-white z-10 shadow-lg">
+        <animated.div style={{
+          ...menuAnimation,
+          backdropFilter: 'blur(10px)',
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+          borderRadius: '10px',
+        }} className="md:hidden absolute mt-2 top-20 left-0 w-full z-10">
           <ul className="flex flex-col justify-center items-center py-4">
             {links.map(({ id, link }) => (
               <React.Fragment key={id}>
@@ -147,6 +164,7 @@ const Navbar = () => {
         </animated.div>
       )}
     </div>
+
   );
 };
 
