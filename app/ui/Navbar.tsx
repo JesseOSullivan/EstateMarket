@@ -60,56 +60,54 @@ const Navbar = () => {
       </ul>
 
       {/* Login/Sign Up Buttons */}
-      <div className="hidden md:flex justify-end items-center gap-2 mr-4">
-        <Button
-          variant="contained"
-          style={{
-            backgroundColor: theme.palette.primary.main,
-            color: '#fff', // Text color
-            padding: '8px 15px', // Keep the padding
-            textTransform: 'none',
-            letterSpacing: 'normal',
-            fontWeight: 'bold',
-            fontSize: '15px', // Keep the font size
-            minWidth: '150px', // Increase the minWidth for a wider button
-            borderRadius: '10px', // Reduced border radius
-            boxShadow: 'none', // Remove box shadow
-            whiteSpace: 'nowrap', // Prevent line break
-            transition: 'background-color 0.2s ease', // Add hover transition
-          }}
-          // Hover style
-          sx={{
-            '&:hover': {
-              backgroundColor: theme.palette.primary.dark, // Change the background color on hover
-            },
-          }}
-        >
+      <div className="hidden md:flex justify-end items-center gap-2 mr-4" style={{ flex: 1 }}>
+      <Button
+    variant="contained"
+    style={{
+      flex: 1, // Allow the button to grow and fill the space
+      backgroundColor: theme.palette.primary.main,
+      color: '#fff',
+      padding: '6px 20px',
+      textTransform: 'none',
+      letterSpacing: 'normal',
+      fontWeight: 'bold',
+      fontSize: '15px',
+      borderRadius: '10px',
+      boxShadow: 'none',
+      whiteSpace: 'nowrap',
+      transition: 'background-color 0.2s ease',
+    }}
+    sx={{
+      '&:hover': {
+        backgroundColor: theme.palette.primary.dark,
+      },
+    }}
+  >
           Login
         </Button>
 
         <Button
-          variant="contained"
-          style={{
-            backgroundColor: theme.palette.secondary.main,
-            color: '#fff', // Text color
-            padding: '8px 15px', // Keep the padding
-            textTransform: 'none',
-            letterSpacing: 'normal',
-            fontWeight: 'bold',
-            fontSize: '15px', // Keep the font size
-            minWidth: '150px', // Increase the minWidth for a wider button
-            borderRadius: '10px', // Reduced border radius
-            boxShadow: 'none', // Remove box shadow
-            whiteSpace: 'nowrap', // Prevent line break
-            transition: 'background-color 0.2s ease', // Add hover transition
-          }}
-          // Hover style
-          sx={{
-            '&:hover': {
-              backgroundColor: theme.palette.secondary.dark, // Change the background color on hover
-            },
-          }}
-        >
+    variant="contained"
+    style={{
+      flex: 1, // Similarly, allow this button to grow and fill the space
+      backgroundColor: theme.palette.secondary.main,
+      color: '#fff',
+      padding: '6px 20px',
+      textTransform: 'none',
+      letterSpacing: 'normal',
+      fontWeight: 'bold',
+      fontSize: '15px',
+      borderRadius: '10px',
+      boxShadow: 'none',
+      whiteSpace: 'nowrap',
+      transition: 'background-color 0.2s ease',
+    }}
+    sx={{
+      '&:hover': {
+        backgroundColor: theme.palette.secondary.dark,
+      },
+    }}
+  >
           Sign Up
         </Button>
       </div>

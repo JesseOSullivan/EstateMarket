@@ -6,10 +6,13 @@ import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Chip from '@mui/material/Chip';
-import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search'; // You'll need to import the appropriate search icon from Material-UI
+import IconButton from '@mui/material/IconButton'; // Import IconButton for clickable icon
+import TuneIcon from '@mui/icons-material/Tune';// Define the props type for the Search component
+import Box from '@mui/material/Box'; // Import Box from MUI for layout purposes
+import Grid from '@mui/material/Grid'; // Import Box from MUI for layout purposes
+import Tune from '@mui/icons-material/Tune';
 
-// Define the props type for the Search component
 type SearchProps = {
   placeholder: string;
 };
@@ -22,7 +25,7 @@ export default function Search({ placeholder }: SearchProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  // Update the inputValue when the searchParams change
+
   useEffect(() => {
     const query = searchParams.get('query');
     if (query) {
@@ -30,9 +33,6 @@ export default function Search({ placeholder }: SearchProps) {
     }
   }, [searchParams]);
 
-
-
-  // Function to handle search execution
   const executeSearch = (values: string[]) => {
     console.log(`Searching... ${values.join(', ')}`);
     const params = new URLSearchParams(searchParams);
@@ -45,30 +45,19 @@ export default function Search({ placeholder }: SearchProps) {
     router.replace(`${pathname}?${params.toString()}`);
   };
 
-  // Handle changes in the Autocomplete component
   const handleAutocompleteChange = (event: React.SyntheticEvent, newValues: string[]) => {
     setSelectedOptions(newValues);
     executeSearch(newValues);
   };
 
-  // Handle changes in the input value
-  const handleInputChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    newInputValue: string
-  ) => {
-    //setInputValue(newInputValue);
-  };
-
-  // Render tags as chips in the Autocomplete
   const renderTags = (value: string[], getTagProps: (value: any) => any) =>
     value.map((option: string, index: number) => (
-      <Chip  key={index} label={option} {...getTagProps({ index })} />
+      <Chip key={index} label={option} {...getTagProps({ index })} />
     ));
-    
+
   return (
-    <div className="relative flex items-center justify-center w-full md:max-w-3xl bg-white shadow-lg " 
-    style={{borderRadius: '30px'}}
-    >
+    <Box className="relative flex   items-center justify-center w-full md:max-w-3xl bg-white shadow-lg"
+      style={{ borderRadius: '30px' }}>
       <Autocomplete
         multiple
         id="field1"
@@ -87,24 +76,35 @@ export default function Search({ placeholder }: SearchProps) {
           clearIndicator: 'hidden',
         }}
         renderInput={(params) => (
-          
-          <TextField
-          autoComplete='off'
-            {...params}
-            placeholder={placeholder}
-            InputProps={{
-              autoComplete: 'new-password',
-              ...params.InputProps,
-              style: {     borderRadius: '30px'},
-          
-            }}
-
-          />
+          <Box display="flex" alignItems="center" style={{ borderRadius: '30px', background: '#fff' }}>
+            <TextField
+              {...params}
+              fullWidth
+              placeholder={placeholder}
+              variant="outlined"
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: null, // Remove the default endAdornment to manage it outside the TextField
+                style: { borderRadius: '30px' },
+              }}
+              style={{ flexGrow: 1 }} // Allow the TextField to grow as needed
+            />
+            <Box className="flex items-center"> {/* This box contains the icons and positions them at the end */}
+              <IconButton className="p-2" onClick={() => {/* Handler for filter action */ }}>
+                <TuneIcon />
+              </IconButton>
+              <IconButton className="p-2" onClick={() => executeSearch(selectedOptions)}>
+                <SearchIcon />
+              </IconButton>
+            </Box>
+          </Box>
         )}
+
       />
-    </div>
+    </Box>
   );
 }
+
 
 const searchOptions: string[] = [
   "Option 1",
