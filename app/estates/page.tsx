@@ -28,25 +28,23 @@ const EstatesPage = () => {
   const isMediumScreen = useMediaQuery(theme.breakpoints.only('md'));
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [isMobile, setIsMobile] = useState(false);
-
   const [view, setView] = useState<'map' | 'list'>('map'); // New state for managing view
+  const [map, setMap] = useState<mapboxgl.Map | null>(null); // State to hold the map object
 
-  useEffect(() => {
-    const map = new mapboxgl.Map({
+
+  const createMap = () => {
+    const newMap = new mapboxgl.Map({
       container: 'map', // The container ID
       style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
       center: [-74.5, 40], // Initial map center in [lng, lat]
       zoom: 9, // Initial map zoom
     });
 
-    map.addControl(new mapboxgl.NavigationControl());
-
-    const mockEstates = simulateFetchEstates();
-    setEstates(mockEstates);
+    newMap.addControl(new mapboxgl.NavigationControl());
 
     // Ensure map is fully loaded before adding markers and popups
-    map.on('load', () => {
-      mockEstates.forEach((estate) => {
+    newMap.on('load', () => {
+      estates.forEach((estate) => {
         // Create a HTML element for each marker
         const el = document.createElement('div');
         el.className = 'marker';
@@ -66,13 +64,25 @@ const EstatesPage = () => {
         new mapboxgl.Marker(el)
           .setLngLat([estate.coordinates.longitude, estate.coordinates.latitude])
           .setPopup(popup) // sets a popup on this marker
-          .addTo(map);
+          .addTo(newMap);
       });
     });
 
-    // Cleanup function
-    return () => map.remove();
-  }, []);
+    // detect the map's new width and height and resize it
+    newMap.resize();
+
+    // Store the map object in the state
+    setMap(newMap);
+  };
+
+  useEffect(() => {
+    const mockEstates = simulateFetchEstates();
+    setEstates(mockEstates);
+
+    if (view === 'map') {
+      createMap();
+    }
+  }, [view]);
 
   const simulateFetchEstates = (): Estate[] => {
     // Simulate fetching data with coordinates
@@ -82,40 +92,27 @@ const EstatesPage = () => {
       // Add more mock estate objects with coordinates
     ];
   };
-  useEffect(() => {
-    // Check the viewport width when the component mounts
-    const handleResize = () => {
-      if (window.innerWidth <= 600) {
-        setIsMobile(true);
-      } else {
-        setIsMobile(false);
-      }
-    };
-
-    // Add an event listener for window resize
-    window.addEventListener('resize', handleResize);
-
-    // Initial check when the component mounts
-    handleResize();
-
-    // Clean up the event listener when the component unmounts
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
 
   const toggleView = () => {
-    setView(prevView => prevView === 'map' ? 'list' : 'map');
+    setView((prevView) => (prevView === 'map' ? 'list' : 'map'));
   };
 
   return (
     <Box sx={{ position: 'relative', height: '100vh' }}>
+      {/* Always render the button */}
+      <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, p: 1, display: 'flex', justifyContent: 'center' }}>
+        <Button style={{ color: '#fff', backgroundColor: theme.palette.primary.main }} variant="contained" onClick={toggleView}>
+          Switch to {view === 'map' ? 'List' : 'Map'}
+        </Button>
+      </Box>
+
       {isMobile ? (
         <>
           {view === 'map' ? (
-            <Grid  xs={12} md={8} lg={8} style={{ height: '100vh' }}>
-              <div id="map" style={{ width: '100%', height: '100%' }}>test</div>
+            <Grid container>
+              <Grid item xs={12} md={8} lg={8} style={{ height: '100vh' }}>
+                <div id="map" style={{ width: '100%', height: '100%' }}></div>
+              </Grid>
             </Grid>
           ) : (
             <Grid container spacing={2} style={{ padding: '20px' }}>
@@ -141,11 +138,6 @@ const EstatesPage = () => {
               ))}
             </Grid>
           )}
-          <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, p: 1, display: 'flex', justifyContent: 'center', }}>
-            <Button style={{ color: '#fff', backgroundColor: theme.palette.primary.main, }} variant="contained" onClick={toggleView}>
-              Switch to {view === 'map' ? 'List' : 'Map'}
-            </Button>
-          </Box>
         </>
       ) : (
         // Non-mobile view
@@ -153,7 +145,14 @@ const EstatesPage = () => {
           <Grid item xs={12} sm={8} md={8} lg={8} style={{ height: '100vh' }}>
             <div id="map" style={{ width: '100%', height: '100%' }}></div>
           </Grid>
-          <Grid item xs={12} sm={4} md={4} lg={4} style={{ overflowY: 'auto', height: '100vh', padding: '20px' }}>
+          <Grid
+            item
+            xs={12}
+            sm={4}
+            md={4}
+            lg={4}
+            style={{ overflowY: 'auto', height: '100vh', padding: '20px' }}
+          >
             <Search placeholder="Search Estates" />
             <Grid container spacing={2}>
               {estates.map((estate, index) => (
