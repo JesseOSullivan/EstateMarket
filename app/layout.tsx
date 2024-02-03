@@ -18,11 +18,15 @@ export default function RootLayout({
           <html>
 
       <body style={{backgroundColor:'#f8f9fa'}} className={`${inter.className} antialiased`}>       
-      <div className='py-10'>
-      <Navbar />
+      <div className="fixed top-0 left-0 right-0 z-50">    
+         <Navbar />
       </div>
 
-      {children}
+
+      <div className="pt-20"> {/* Add top padding to push content below the navbar */}
+          {children}
+        </div>
+      
       <SpeedInsights />
 
       </body>
