@@ -99,7 +99,7 @@ export default function Search({ placeholder }: SearchProps) {
         renderInput={(params) => (
           <Box display="flex" alignItems="center" style={{ borderRadius: '30px', background: '#fff' }}>
             <TextField
-              onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) => {
+              onKeyDown={(event) => {
                 if (event.key === 'Enter') {
                   // Prevent the default action to avoid form submission if this is inside a form
                   event.preventDefault();
