@@ -19,7 +19,7 @@ export default function HomePage() {
         />
 
  {/* Responsive semi-transparent box with header text and search bar */}
-        <div className="absolute inset-0 flex items-center justify-center    ">
+        <div className="absolute inset-0 flex items-center justify-center  px-1  ">
           <div className="w-full  pt-8 max-w-3xl bg-black bg-opacity-40  rounded-lg  overflow-hidden ">
             {/* Header text */}
             <div className="text-white text-3xl font-bold sm:p-8 text-center ">
