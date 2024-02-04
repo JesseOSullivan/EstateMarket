@@ -10,8 +10,8 @@ import SearchIcon from '@mui/icons-material/Search'; // You'll need to import th
 import IconButton from '@mui/material/IconButton'; // Import IconButton for clickable icon
 import TuneIcon from '@mui/icons-material/Tune';// Define the props type for the Search component
 import Box from '@mui/material/Box'; // Import Box from MUI for layout purposes
-import Grid from '@mui/material/Grid'; // Import Box from MUI for layout purposes
-import Tune from '@mui/icons-material/Tune';
+import { Filter } from './Filter';
+import { useSpring, animated } from '@react-spring/web';
 
 type SearchProps = {
   placeholder: string;
@@ -25,7 +25,18 @@ export default function Search({ placeholder }: SearchProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const closeFilter = () => setIsFilterVisible(false);
+  
+  const filterCategories = ["Category 1", "Category 2", "Category 3"]; // Example categories
+  const applyFilters = (selectedCategories: string[]) => {
+    console.log("Applying filters: ", selectedCategories);
+    // Close the filter modal/panel
+    setIsFilterVisible(false);
+    // Here, you can integrate the logic to apply these filters to your search query
+  };
+  const toggleFilterVisibility = () => setIsFilterVisible(!isFilterVisible);
+  
   useEffect(() => {
     const query = searchParams.get('query');
     if (query) {
@@ -109,7 +120,7 @@ export default function Search({ placeholder }: SearchProps) {
               style={{ flexGrow: 1 }} // Allow the TextField to grow as needed
             />
             <Box className="flex items-center"> {/* This box contains the icons and positions them at the end */}
-              <IconButton className="p-2" onClick={() => {/* Handler for filter action */ }}>
+            <IconButton className="p-2" onClick={toggleFilterVisibility}>
                 <TuneIcon />
               </IconButton>
               <IconButton className="p-2" onClick={handleSearchButtonClick}>
@@ -120,6 +131,24 @@ export default function Search({ placeholder }: SearchProps) {
         )}
 
       />
+  {/* Conditional rendering for backdrop */}
+  {isFilterVisible && (
+  <animated.div
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Ensure this is the only source of opacity
+    }}
+    onClick={() => setIsFilterVisible(false)} // Optionally close filter on backdrop click
+  ></animated.div>
+)}
+
+  {/* Filter Component */}
+  {isFilterVisible && <Filter categories={filterCategories} applyFilters={applyFilters} closeFilter={closeFilter} />}
+
     </Box>
   );
 }

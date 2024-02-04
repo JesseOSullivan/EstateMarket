@@ -6,7 +6,6 @@ import mapboxgl from 'mapbox-gl';
 import Search from '@/app/ui/search'; // Assuming the Search component is saved in components folder
 import { Box, Card, CardContent, CardMedia, Typography, Grid, Button, useMediaQuery, useTheme } from '@mui/material';
 import "mapbox-gl/dist/mapbox-gl.css";
-import { AppBar, Toolbar } from '@mui/material'; // Import AppBar and Toolbar
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
 
