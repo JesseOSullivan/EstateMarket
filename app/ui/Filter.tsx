@@ -21,7 +21,8 @@ export const Filter: React.FC<FilterProps> = ({ categories, applyFilters, closeF
     config: { tension: 170, friction: 26 },
     top: 90, // Keeps the component below the navbar
     height: 'calc(100vh - 90px - 20px)', // Adjusts the height to introduce a gap at the bottom
-  });
+
+});
   
   useEffect(() => {
     setIsVisible(true); // Automatically show the filter upon component mounting
@@ -41,7 +42,7 @@ export const Filter: React.FC<FilterProps> = ({ categories, applyFilters, closeF
 
   return (
 
-    <animated.div style={animation} className="fixed  right-0 md:w-[600px] pb-10 w-full h-full bg-white p-4 shadow-md z-50 p-4 flex flex-col">
+    <animated.div style={animation} className="fixed rounded right-0 md:w-[600px] pb-10 w-full h-full bg-white p-4 shadow-md z-50 p-4 flex flex-col">
       <IconButton onClick={() => { setIsVisible(false); closeFilter(); }} className="self-end">
         <CloseIcon />
       </IconButton>
