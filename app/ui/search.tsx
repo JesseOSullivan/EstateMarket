@@ -54,7 +54,7 @@ export default function Search({ placeholder }: SearchProps) {
     const params = new URLSearchParams(searchParams);
     router.replace(`${pathname + 'estates'}?${params.toString()}`);
   }
-    
+
 
   const renderTags = (value: string[], getTagProps: (value: any) => any) =>
     value.map((option: string, index: number) => (
@@ -86,6 +86,15 @@ export default function Search({ placeholder }: SearchProps) {
         renderInput={(params) => (
           <Box display="flex" alignItems="center" style={{ borderRadius: '30px', background: '#fff' }}>
             <TextField
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  // Prevent the default action to avoid form submission if this is inside a form
+                  event.preventDefault();
+                  // Trigger the search with the currently selected options
+                  handleSearchButtonClick();
+                }
+              }}
+            
               {...params}
               fullWidth
               placeholder={placeholder}
