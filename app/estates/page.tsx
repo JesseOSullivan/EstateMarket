@@ -156,13 +156,13 @@ const EstatesPage = () => {
         </>
       ) : (
         // Non-mobile view
-        <Grid container>
+        <Grid container >
           <Grid item xs={12} sm={8} md={8} lg={8} style={{ height: '100vh' }}>
           <div id="map" style={{ width: '100%', height: '100%' }}></div>
           </Grid>
           <Grid item xs={12} sm={4} md={4} lg={4} style={{ overflowY: 'auto', height: '100vh', padding: '20px' }}>
             <Search placeholder="Search Estates" />
-            <Grid container spacing={2}>
+            <Grid className='pt-10' container spacing={2}>
               {estates.map((estate, index) => (
                 <Grid item xs={12} sm={12} md={12} lg={6} key={index}>
                   <Card>
