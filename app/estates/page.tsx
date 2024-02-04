@@ -50,15 +50,6 @@ const EstatesPage = () => {
     // Ensure map is fully loaded before adding markers and popups
     map.on('load', () => {
       mockEstates.forEach((estate) => {
-        // Create a HTML element for each marker
-        const el = document.createElement('div');
-        el.className = 'marker';
-
-        // Optionally set marker width and height
-        el.style.backgroundImage = `url(${estate.image})`;
-        el.style.width = '50px';
-        el.style.height = '50px';
-        el.style.backgroundSize = '100%';
 
         // Create a popup
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
@@ -66,7 +57,7 @@ const EstatesPage = () => {
         );
 
         // Create and add the marker
-        new mapboxgl.Marker(el)
+        new mapboxgl.Marker()
           .setLngLat([estate.coordinates.longitude, estate.coordinates.latitude])
           .setPopup(popup) // sets a popup on this marker
           .addTo(map);
