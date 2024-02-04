@@ -6,6 +6,7 @@ import mapboxgl from 'mapbox-gl';
 import Search from '@/app/ui/search'; // Assuming the Search component is saved in components folder
 import { Box, Card, CardContent, CardMedia, Typography, Grid, Button, useMediaQuery, useTheme } from '@mui/material';
 import "mapbox-gl/dist/mapbox-gl.css";
+import { AppBar, Toolbar } from '@mui/material'; // Import AppBar and Toolbar
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
 
@@ -106,46 +107,50 @@ const EstatesPage = () => {
 
   return (
     <Box sx={{ position: 'relative', height: '100vh' }}>
-      {isMobile ? (
-        <>
-          {view === 'map' ? (
-                <Grid container>
-            <Grid item xs={12} md={8} lg={8} style={{ height: '100vh' }}>
-              <div  id="map" style={{ width: '100%', height: '100%' }}></div>
-            </Grid>
-            </Grid>
-
-          ) : (
-            <Grid container spacing={2} style={{ padding: '20px' }}>
-              {estates.map((estate, index) => (
-                <Grid item xs={12} key={index}>
-                  <Card>
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      image={estate.image}
-                      alt={estate.name}
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {estate.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {estate.location}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-          <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, p: 1, display: 'flex', justifyContent: 'center', }}>
-            <Button style={{ color: '#fff', backgroundColor: theme.palette.primary.main, }} variant="contained" onClick={toggleView}>
-              Switch to {view === 'map' ? 'List' : 'Map'}
-            </Button>
-          </Box>
-        </>
+  {isMobile ? (
+    <>
+      {view === 'map' ? (
+            <Grid container>
+        <Grid item xs={12} md={8} lg={8} style={{ height: '100vh' }}>
+          <div  id="map" style={{ width: '100%', height: '100%' }}></div>
+        </Grid>
+        </Grid>
       ) : (
+        <>
+          <div className='px-2' style={{ position: 'sticky',  top: '90px', zIndex: 10 }}> {/* Make search bar stick just below the navbar */}
+            <Search placeholder="Search Estates"  />
+          </div>
+          <Grid container spacing={2} style={{ padding: '20px' }}>
+            {estates.map((estate, index) => (
+              <Grid item xs={12} key={index}>
+                <Card>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    image={estate.image}
+                    alt={estate.name}
+                  />
+                  <CardContent>
+                    <Typography gutterBottom variant="h5" component="div">
+                      {estate.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {estate.location}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </>
+      )}
+      <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, p: 1, display: 'flex', justifyContent: 'center', }}>
+        <Button style={{ color: '#fff', backgroundColor: theme.palette.primary.main, }} variant="contained" onClick={toggleView}>
+          Switch to {view === 'map' ? 'List' : 'Map'}
+        </Button>
+      </Box>
+    </>
+  ) : (
         // Non-mobile view
         <Grid container >
           <Grid item xs={12} sm={8} md={8} lg={8} style={{ height: '100vh' }}>

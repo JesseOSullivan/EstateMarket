@@ -52,9 +52,11 @@ export default function Search({ placeholder }: SearchProps) {
   
   const handleSearchButtonClick = () => {
     const params = new URLSearchParams(searchParams);
-    router.replace(`${pathname + 'estates'}?${params.toString()}`);
+    // Ensure 'estates' is only appended if not already in pathname
+    const newPath = pathname.endsWith('/estates') ? pathname : `${pathname}estates`;
+    router.replace(`${newPath}?${params.toString()}`);
   }
-
+  
 
   const renderTags = (value: string[], getTagProps: (value: any) => any) =>
     value.map((option: string, index: number) => (
