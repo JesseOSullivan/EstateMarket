@@ -1,179 +1,218 @@
-const { db } = require('@vercel/postgres');
-const {
-  invoices,
-  customers,
-  revenue,
-  users,
-} = require('../app/lib/placeholder-data.js');
 const bcrypt = require('bcrypt');
+const { db } = require('@vercel/postgres');
 
-async function seedUsers(client) {
-  try {
-    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-    // Create the "users" table if it doesn't exist
-    const createTable = await client.sql`
-      CREATE TABLE IF NOT EXISTS users (
-        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL
-      );
-    `;
-
-    console.log(`Created "users" table`);
-
-    // Insert data into the "users" table
-    const insertedUsers = await Promise.all(
-      users.map(async (user) => {
-        const hashedPassword = await bcrypt.hash(user.password, 10);
-        return client.sql`
-        INSERT INTO users (id, name, email, password)
-        VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
-        ON CONFLICT (id) DO NOTHING;
-      `;
-      }),
-    );
-
-    console.log(`Seeded ${insertedUsers.length} users`);
-
-    return {
-      createTable,
-      users: insertedUsers,
-    };
-  } catch (error) {
-    console.error('Error seeding users:', error);
-    throw error;
-  }
-}
-
-async function seedInvoices(client) {
-  try {
-    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-
-    // Create the "invoices" table if it doesn't exist
-    const createTable = await client.sql`
-    CREATE TABLE IF NOT EXISTS invoices (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    customer_id UUID NOT NULL,
-    amount INT NOT NULL,
-    status VARCHAR(255) NOT NULL,
-    date DATE NOT NULL
-  );
-`;
-
-    console.log(`Created "invoices" table`);
-
-    // Insert data into the "invoices" table
-    const insertedInvoices = await Promise.all(
-      invoices.map(
-        (invoice) => client.sql`
-        INSERT INTO invoices (customer_id, amount, status, date)
-        VALUES (${invoice.customer_id}, ${invoice.amount}, ${invoice.status}, ${invoice.date})
-        ON CONFLICT (id) DO NOTHING;
-      `,
-      ),
-    );
-
-    console.log(`Seeded ${insertedInvoices.length} invoices`);
-
-    return {
-      createTable,
-      invoices: insertedInvoices,
-    };
-  } catch (error) {
-    console.error('Error seeding invoices:', error);
-    throw error;
-  }
-}
-
-async function seedCustomers(client) {
-  try {
-    await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-
-    // Create the "customers" table if it doesn't exist
-    const createTable = await client.sql`
-      CREATE TABLE IF NOT EXISTS customers (
-        id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL,
-        image_url VARCHAR(255) NOT NULL
-      );
-    `;
-
-    console.log(`Created "customers" table`);
-
-    // Insert data into the "customers" table
-    const insertedCustomers = await Promise.all(
-      customers.map(
-        (customer) => client.sql`
-        INSERT INTO customers (id, name, email, image_url)
-        VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url})
-        ON CONFLICT (id) DO NOTHING;
-      `,
-      ),
-    );
-
-    console.log(`Seeded ${insertedCustomers.length} customers`);
-
-    return {
-      createTable,
-      customers: insertedCustomers,
-    };
-  } catch (error) {
-    console.error('Error seeding customers:', error);
-    throw error;
-  }
-}
-
-async function seedRevenue(client) {
-  try {
-    // Create the "revenue" table if it doesn't exist
-    const createTable = await client.sql`
-      CREATE TABLE IF NOT EXISTS revenue (
-        month VARCHAR(4) NOT NULL UNIQUE,
-        revenue INT NOT NULL
-      );
-    `;
-
-    console.log(`Created "revenue" table`);
-
-    // Insert data into the "revenue" table
-    const insertedRevenue = await Promise.all(
-      revenue.map(
-        (rev) => client.sql`
-        INSERT INTO revenue (month, revenue)
-        VALUES (${rev.month}, ${rev.revenue})
-        ON CONFLICT (month) DO NOTHING;
-      `,
-      ),
-    );
-
-    console.log(`Seeded ${insertedRevenue.length} revenue`);
-
-    return {
-      createTable,
-      revenue: insertedRevenue,
-    };
-  } catch (error) {
-    console.error('Error seeding revenue:', error);
-    throw error;
-  }
-}
-
-async function main() {
+// Function to drop all tables
+async function dropAllTables() {
   const client = await db.connect();
-
-  await seedUsers(client);
-  await seedCustomers(client);
-  await seedInvoices(client);
-  await seedRevenue(client);
-
-  await client.end();
+  try {
+    // Drop tables in reverse order to avoid issues with foreign key constraints
+    await client.query(`
+      DROP TABLE IF EXISTS userinterests, form, account, analytics, userleads, userinteractions, userfavorites, "user", property, estatetags, tags, estate, location, address, developer CASCADE;
+    `);
+    console.log('All tables dropped successfully.');
+  } catch (err) {
+    console.error('Error dropping tables:', err);
+  } finally {
+    await client.end();
+  }
 }
 
-main().catch((err) => {
-  console.error(
-    'An error occurred while attempting to seed the database:',
-    err,
-  );
-});
+// Function to create tables
+async function createTables() {
+  const client = await db.connect();
+  try {
+    // Creating tables, ensuring to create them in the correct order to respect foreign key dependencies
+
+    // Developer
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS developer (
+        developerid SERIAL PRIMARY KEY,
+        name VARCHAR(255) UNIQUE
+      );
+    `);
+
+    // Address
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS address (
+        addressid SERIAL PRIMARY KEY,
+        fulladdress VARCHAR(255),
+        streetnumber VARCHAR(255),
+        streetname VARCHAR(255),
+        suburb VARCHAR(255),
+        city VARCHAR(255),
+        state VARCHAR(255),
+        postcode VARCHAR(255),
+        country VARCHAR(255)
+      );
+    `);
+
+    // Location
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS location (
+        locationid SERIAL PRIMARY KEY,
+        addressid INTEGER REFERENCES address(addressid),
+        citycouncil VARCHAR(255),
+        areasize DECIMAL,
+        growthregion VARCHAR(255),
+        distanceto VARCHAR(255),
+        latitude DECIMAL,
+        longitude DECIMAL
+      );
+    `);
+
+    // Estate
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS estate (
+        estateid SERIAL PRIMARY KEY,
+        estatename VARCHAR(255),
+        status VARCHAR(255),
+        description TEXT,
+        developerid INTEGER REFERENCES developer(developerid),
+        locationid INTEGER REFERENCES location(locationid),
+        pricerange DECIMAL,
+        totalnewhomes INTEGER,
+        url VARCHAR(255),
+        othernames VARCHAR(255),
+        landsizes VARCHAR(255)
+      );
+    `);
+
+    // Tags
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS tags (
+        tagid SERIAL PRIMARY KEY,
+        tagname VARCHAR(255)
+      );
+    `);
+
+    // EstateTags
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS estatetags (
+        estateid INTEGER REFERENCES estate(estateid),
+        tagid INTEGER REFERENCES tags(tagid),
+        PRIMARY KEY (estateid, tagid)
+      );
+    `);
+
+    // Property
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS property (
+        propertyid SERIAL PRIMARY KEY,
+        estateid INTEGER REFERENCES estate(estateid),
+        houseprice DECIMAL,
+        bedrooms INT,
+        bathrooms INT,
+        carspaces INT,
+        images TEXT
+      );
+    `);
+
+    // User
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS "user" (
+        userid SERIAL PRIMARY KEY,
+        username VARCHAR(255) UNIQUE,
+        email VARCHAR(255) UNIQUE,
+        password VARCHAR(255),
+        first_name VARCHAR(255),
+        lastname VARCHAR(255),
+        phonenumber VARCHAR(20),
+        registrationdate TIMESTAMP,
+        locationid INTEGER REFERENCES location(locationid)
+      );
+    `);
+
+    // UserFavorites
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS userfavorites (
+        userfavoriteid SERIAL PRIMARY KEY,
+        userid INTEGER REFERENCES "user"(userid),
+        estateid INTEGER REFERENCES estate(estateid)
+      );
+    `);
+
+    // UserInteractions
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS userinteractions (
+        userinteractionid SERIAL PRIMARY KEY,
+        userid INTEGER REFERENCES "user"(userid),
+        estateid INTEGER REFERENCES estate(estateid),
+        interaction_type VARCHAR(255),
+        interaction_date TIMESTAMP
+      );
+    `);
+
+    // UserLeads
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS userleads (
+        userleadid SERIAL PRIMARY KEY,
+        userid INTEGER REFERENCES "user"(userid),
+        estateid INTEGER REFERENCES estate(estateid),
+        message TEXT,
+        leadstatus VARCHAR(255),
+        leaddate TIMESTAMP
+      );
+    `);
+
+    // Analytics
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS analytics (
+        analyticsid SERIAL PRIMARY KEY,
+        userid INTEGER REFERENCES "user"(userid),
+        pagevisited VARCHAR(255),
+        action_taken VARCHAR(255),
+        timestamp TIMESTAMP
+      );
+    `);
+
+    // Account
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS account (
+        accountid SERIAL PRIMARY KEY,
+        userid INTEGER REFERENCES "user"(userid),
+        account_type VARCHAR(255),
+        expiration_date TIMESTAMP
+      );
+    `);
+
+    // Form
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS form (
+        formid SERIAL PRIMARY KEY,
+        userid INTEGER REFERENCES "user"(userid),
+        formtype VARCHAR(255),
+        formdata TEXT,
+        submission_date TIMESTAMP
+      );
+    `);
+
+    // UserInterests
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS userinterests (
+        user_interest_id SERIAL PRIMARY KEY,
+        userid INTEGER REFERENCES "user"(userid),
+        locationid INTEGER REFERENCES location(locationid),
+        interest_type VARCHAR(255),
+        property_type VARCHAR(255),
+        minbudget DECIMAL,
+        maxbudget DECIMAL,
+        additionalpreferences TEXT
+      );
+    `);
+
+    console.log('All tables created successfully.');
+  } catch (err) {
+    console.error('Error creating tables:', err);
+  } finally {
+    await client.end();
+  }
+}
+
+async function resetDatabase() {
+  await dropAllTables();
+  await createTables();
+  // Optionally, call seed functions here if needed
+}
+
+resetDatabase().catch(console.error);

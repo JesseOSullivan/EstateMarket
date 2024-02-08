@@ -6,7 +6,8 @@
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
     "start": "next start",
-    "seed": "node -r dotenv/config ./scripts/seed.js"
+    "seedTables": "node -r dotenv/config ./scripts/seed.js",
+    "seedData": "node -r dotenv/config ./scripts/seedData.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
@@ -23,6 +24,7 @@
     "autoprefixer": "10.4.15",
     "bcrypt": "^5.1.1",
     "clsx": "^2.0.0",
+    "csv-parser": "^3.0.0",
     "mapbox-gl": "^3.1.2",
     "next": "^14.0.2",
     "postcss": "8.4.31",
