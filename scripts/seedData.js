@@ -1,7 +1,37 @@
 const { db } = require('@vercel/postgres');
 const fs = require('fs');
 const csv = require('csv-parser');
-
+async function deleteAllData() {
+    const client = await db.connect();
+    try {
+      await client.query('DELETE FROM userforms');
+      await client.query('DELETE FROM estateinteractions');
+      await client.query('DELETE FROM propertyinteractions');
+      await client.query('DELETE FROM analytics');
+      await client.query('DELETE FROM userfavorites');
+      await client.query('DELETE FROM userleads');
+      await client.query('DELETE FROM account');
+      await client.query('DELETE FROM personal_details');
+      await client.query('DELETE FROM "user"');
+      await client.query('DELETE FROM housenland');
+      await client.query('DELETE FROM townhouse');
+      await client.query('DELETE FROM land');
+      await client.query('DELETE FROM property');
+      await client.query('DELETE FROM estatetags');
+      await client.query('DELETE FROM tags');
+      await client.query('DELETE FROM estate');
+      await client.query('DELETE FROM estate_additional');
+      await client.query('DELETE FROM location');
+      await client.query('DELETE FROM address');
+      await client.query('DELETE FROM developer');
+      console.log('All data deleted successfully.');
+    } catch (err) {
+      console.error('Error deleting data:', err);
+    } finally {
+      await client.end();
+    }
+  }
+  
 // Function to insert data into developer table
 async function insertDevelopers(client, data) {
   for (const item of data) {
@@ -22,7 +52,7 @@ async function insertEstates(client, data) {
     for (const item of data) {
       const estateName = item['Estate Name'];
       const status = item['Status'];
-      const description = item['description'];
+      //const description = item['description'];
       const developerName = item['Developer'];
       const address = item['Address']; // Assuming you have an address field or similar identifier
 
@@ -52,8 +82,8 @@ async function insertEstates(client, data) {
         // Insert data into the estate table, including locationid
         if (developerId && locationId) { // Ensure both IDs are found
             await client.query(
-                'INSERT INTO estate (estatename, status, description, developerid, locationid) VALUES ($1, $2, $3, $4, $5)',
-                [estateName, status, description, developerId, locationId]
+                'INSERT INTO estate (estatename, status,  developerid, locationid) VALUES ($1, $2, $3, $4)',
+                [estateName, status,  developerId, locationId]
             );
         }
     } catch (error) {
@@ -70,13 +100,16 @@ async function insertLocations(client, data) {
         Address,
         'Street Number': StreetNumber,
         'Street Name': StreetName,
-        "Growth Region": GrowthRegion, // Added "Growth Region"
-        'Distance To': DistanceTo,
+        'City council': CityCouncil,
+        "Growth Region": GrowthRegion,
         Latitude,
         Longitude,
         "Area size": AreaSize,
       } = item;
       try {
+
+        const parsedAreaSize = parseFloat(AreaSize);
+
         // Get the address id based on full address
         const addressResult = await client.query(
           'SELECT addressid FROM address WHERE fulladdress = $1',
@@ -88,9 +121,10 @@ async function insertLocations(client, data) {
   
           // Insert data into the location table
           await client.query(
-            'INSERT INTO location (addressid, growthregion, areasize, distanceto, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6)',
-            [addressId, GrowthRegion, AreaSize, DistanceTo, Latitude, Longitude]
-          );
+            'INSERT INTO location (addressid, citycouncil, areasize, growthregion, latitude, longitude) VALUES ($1, $2, $3, $4, $5, $6)',
+            [addressId, CityCouncil, parsedAreaSize, GrowthRegion, Latitude, Longitude]
+
+            );
         }
       } catch (error) {
         console.error('Error inserting location:', error);
@@ -105,7 +139,6 @@ async function insertLocations(client, data) {
         'Street Number': fallbackStreetNumber,
         'Street Name': fallbackStreetName,
         Suburb: fallbackSuburb,
-        City,
         State: fallbackState,
         Postcode: fallbackPostcode,
         Country,
@@ -128,7 +161,8 @@ async function insertLocations(client, data) {
         
         const suburbRegex = /, (.*?)(?: QLD| NSW| VIC| TAS| SA| WA| NT| ACT) \d{4}/;
         const  suburbmatch = Address.match(suburbRegex);
-        const suburb = suburbmatch ? suburbmatch[1].trim() : fallbackSuburb; // Extracted suburb or fallback
+         suburb = suburbmatch ? suburbmatch[1].trim() : fallbackSuburb; // Extracted suburb or fallback
+        subrub = 's'
         console.log("test " + suburb)
         if (match) {
           state = match[1];
@@ -148,8 +182,8 @@ async function insertLocations(client, data) {
       try {
         // Insert data into the address table
         await client.query(
-          'INSERT INTO address (fulladdress, streetnumber, streetname, suburb, city, state, postcode, country) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (fulladdress) DO NOTHING',
-          [Address, streetNumber, streetName, suburb, City, state, postcode, Country]
+          'INSERT INTO address (fulladdress, streetnumber, streetname, suburb,  state, postcode) VALUES ($1, $2, $3, $4, $5, $6)',
+          [Address, streetNumber, streetName, suburb, state, postcode]
         );
       } catch (error) {
         console.error('Error inserting address:', error);
@@ -169,15 +203,16 @@ async function main() {
         data.push(row);
       })
       .on('end', async () => {
+        deleteAllData()
         // Insert data into developer table
-        //await insertDevelopers(client, data);
+        await insertDevelopers(client, data);
         // Insert data into address table
-        //await insertAddresses(client, data);
+        await insertAddresses(client, data);
         await insertLocations(client, data)
 
         // Continue with inserting data into other tables (location, estate, tags, estatetags, property, user, etc.)
         // You can create similar functions for each table and call them here
-        //await insertEstates(client, data);
+        await insertEstates(client, data);
 
         console.log('Data insertion completed.');
         client.end();
