@@ -129,7 +129,7 @@ const EstatesPage = ({ locationData }: { locationData: locationDataType[] }) => 
                         component="img"
                         height="140"
                         image='https://via.placeholder.com/150'
-                        alt={locaiton.addressid}
+                      alt={String(locaiton.citycouncil)} // Ensure addressid is converted to a string
                       />
                       <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
@@ -167,7 +167,7 @@ const EstatesPage = ({ locationData }: { locationData: locationDataType[] }) => 
                       component="img"
                       height="140"
                       image='https://via.placeholder.com/150'
-                      alt={location.citycouncil}
+                      alt={String(locaiton.citycouncil)} // Ensure addressid is converted to a string
                     />
                     <CardContent>
                       <Typography gutterBottom variant="h5" component="div">
