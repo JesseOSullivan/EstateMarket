@@ -7,10 +7,67 @@ import {
   LatestInvoiceRaw,
   User,
   Revenue,
-  locationDataType
+  locationDataType,
+  SearchResult
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
+
+export async function fetchSearchLocation(searchTerm: string) {
+  try {
+    console.log('Fetching search location data...');
+    if (searchTerm) {
+      const result = await sql<SearchResult>`
+      SELECT
+        e.estateid,
+        e.estatename,
+        e.status,
+        e.developerid,
+        d.name AS developername, 
+        e.locationid,
+        e.pricerange,
+        e.totalnewhomes,
+        l.addressid,
+        l.citycouncil,
+        l.areasize,
+        l.growthregion,
+        l.latitude,
+        l.longitude,
+        a.fulladdress,
+        a.streetnumber,
+        a.streetname,
+        a.suburb,
+        a.state,
+        a.postcode,
+        a.country
+      FROM
+        estate e
+      INNER JOIN
+        location l ON e.locationid = l.locationid
+      INNER JOIN
+        developer d ON e.developerid = d.developerid 
+      INNER JOIN
+        address a ON l.addressid = a.addressid
+      WHERE 
+        e.estatename ILIKE  '%' || ${searchTerm} || '%' OR
+        d.name ILIKE  '%' || ${searchTerm} || '%' OR
+        a.fulladdress ILIKE  '%' || ${searchTerm} || '%' OR
+        a.suburb ILIKE  '%' || ${searchTerm} || '%' OR
+        a.state ILIKE  '%' || ${searchTerm} || '%' OR
+        a.postcode ILIKE  '%' || ${searchTerm} || '%' OR
+        l.growthregion ILIKE  '%' || ${searchTerm} || '%' OR
+        a.country ILIKE  '%' || ${searchTerm} || '%';
+        
+`;
+return result.rows;
+
+}
+
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch search results. ' + error);
+  }
+}
 
 
 export async function fetchLocation() {

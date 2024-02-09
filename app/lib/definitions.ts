@@ -94,5 +94,25 @@ export type  locationDataType = {
   growthregion: string;
   latitude: number;
   longitude: number;
+};
+export type SearchResult = {
+  estateid: number;
+  estatename: string;
+  status: string;
+  developerid: number;
+  developername: string;
+  locationid: number;
+  pricerange: number;
+  totalnewhomes: number;
+  addressid: string;
+  citycouncil: string;
+  areasize: string | number;
+  //landsizes: string;
+  //starting_land_price: number;
+  //starting_house_price: number;
+  growthregion: string;
+  latitude: number;
+  longitude: number;
 }
+
 

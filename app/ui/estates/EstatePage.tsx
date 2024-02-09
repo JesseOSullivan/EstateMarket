@@ -7,7 +7,8 @@ import Search from '@/app/ui/search'; // Assuming the Search component is saved 
 import { Box, Card, CardContent, CardMedia, Typography, Grid, Button, useMediaQuery, useTheme } from '@mui/material';
 import "mapbox-gl/dist/mapbox-gl.css";
 import {
-  locationDataType
+  locationDataType,
+  SearchResult
 } from '@/app/lib/definitions';
 
 
@@ -25,12 +26,12 @@ type Estate = {
   };
 };
 
-
-const EstatesPage = ({ locationData }: { locationData: locationDataType[] }) => {
-  const [Locations, setLocations] = useState<locationDataType[]>([]);
+const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
+  const [Locations, setLocations] = useState<SearchResult[]>([]);
   const theme = useTheme();
   const [isMobile, setIsMobile] = useState(false);
   const [view, setView] = useState<'map' | 'list'>('map'); // New state for managing view
+  console.log(locationData)
 
   useEffect(() => {
     setLocations(locationData);
