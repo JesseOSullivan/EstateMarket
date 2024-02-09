@@ -7,6 +7,7 @@ import {
   LatestInvoiceRaw,
   User,
   Revenue,
+  locationDataType
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
@@ -17,7 +18,7 @@ export async function fetchLocation() {
     // We artificially delay a response for demo purposes.
     console.log('Fetching Location  data...');
  
-    const data = await sql<Revenue>`SELECT * FROM location`;
+    const data = await sql<locationDataType>`SELECT * FROM location`;
  
     console.log('Data fetch completed after 3 seconds.');
  

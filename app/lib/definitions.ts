@@ -86,3 +86,13 @@ export type InvoiceForm = {
   amount: number;
   status: 'pending' | 'paid';
 };
+export type  locationDataType = {
+  locationid: number;
+  addressid: number;
+  citycouncil: string;
+  areasize: string | number; // Assuming it can be a number or a string
+  growthregion: string;
+  latitude: number;
+  longitude: number;
+}
+
