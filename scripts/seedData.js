@@ -55,8 +55,41 @@ async function insertEstates(client, data) {
       //const description = item['description'];
       const developerName = item['Developer'];
       const address = item['Address']; // Assuming you have an address field or similar identifier
+      const landPrice = item['Land Price'] === 'N/A' ? null : parseLandPrice(item['Land Price']);
+      const housePrice = item['House and Land Price'] === 'N/A' ? null : parseHousePrice(item['House and Land Price']);
+      const landSizes = item['Land sizes'] === 'N/A' ? null : parseLandSizes(item['Land sizes']);
+      const numNewHomes = item['Total new homes'] === 'N/A' ? null : parseInt(item['Total new homes']);
+      console.log("numNewHomes " + numNewHomes)
+// Function to parse house price for house & land packages
+function parseHousePrice(housePriceString) {
+    if (housePriceString.toLowerCase().startsWith('n/a')) {
+        return null;
+    } else {
+        const priceStr = housePriceString.replace(/\D/g, ''); // Remove non-numeric characters
+        return parseInt(priceStr); // Parse the price string to an integer
+    }
+}
+function parseLandPrice(landPriceString) {
+    if (landPriceString.toLowerCase().startsWith('n/a')) {
+        return null;
+    } else {
+        const priceStr = landPriceString.replace(/\D/g, ''); // Remove non-numeric characters
+        return parseInt(priceStr); // Parse the price string to an integer
+    }
+}
 
-      try {
+      // Function to parse land sizes and extract the minimum integer value
+      function parseLandSizes(landSizesString) {
+          const sizesArray = landSizesString.split(' ');
+          for (const size of sizesArray) {
+              const number = parseInt(size);
+              if (!isNaN(number)) {
+                  return number;
+              }
+          }
+          return null;
+      }
+            try {
         // Get the developer id based on developer name
         const developerResult = await client.query(
             'SELECT developerid FROM developer WHERE name = $1',
@@ -82,8 +115,8 @@ async function insertEstates(client, data) {
         // Insert data into the estate table, including locationid
         if (developerId && locationId) { // Ensure both IDs are found
             await client.query(
-                'INSERT INTO estate (estatename, status,  developerid, locationid) VALUES ($1, $2, $3, $4)',
-                [estateName, status,  developerId, locationId]
+                'INSERT INTO estate (estatename,  status,  developerid, locationid ,starting_landsizes, starting_land_price, starting_house_price, totalnewhomes ) VALUES ($1, $2, $3, $4,$5,$6,$7, $8)',
+                [estateName, status,  developerId, locationId, landSizes, landPrice, housePrice, numNewHomes]
             );
         }
     } catch (error) {
@@ -203,7 +236,7 @@ async function main() {
         data.push(row);
       })
       .on('end', async () => {
-        deleteAllData()
+        await deleteAllData()
         // Insert data into developer table
         await insertDevelopers(client, data);
         // Insert data into address table

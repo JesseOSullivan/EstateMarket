@@ -1,11 +1,11 @@
 // estates.tsx
-'use client';
 
 import React, { useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Search from '@/app/ui/search'; // Assuming the Search component is saved in components folder
 import { Box, Card, CardContent, CardMedia, Typography, Grid, Button, useMediaQuery, useTheme } from '@mui/material';
 import "mapbox-gl/dist/mapbox-gl.css";
+import { fetchLocation } from '../lib/data';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
 
@@ -21,18 +21,15 @@ type Estate = {
 };
 
 
-const EstatesPage = () => {
+const EstatesPage = async () => {
   const [estates, setEstates] = useState<Estate[]>([]);
   const theme = useTheme();
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
-  const isMediumScreen = useMediaQuery(theme.breakpoints.only('md'));
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [isMobile, setIsMobile] = useState(false);
   const [view, setView] = useState<'map' | 'list'>('map'); // New state for managing view
 
+  const location = await fetchLocation(); // Fetch data inside the component
+  console.log(location)
 
-
-  
   useEffect(() => {
     if (view != 'map') return;
     const map = new mapboxgl.Map({

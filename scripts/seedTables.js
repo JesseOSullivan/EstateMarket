@@ -62,11 +62,11 @@ async function createTables() {
         status VARCHAR(255),
         developerid INT REFERENCES developer(developerid),
         locationid INT REFERENCES location(locationid),
-        pricerange DECIMAL,
-        totalnewhomes INT,
-        url VARCHAR(255),
-        othernames VARCHAR(255),
-        landsizes VARCHAR(255)
+        pricerange int,
+        totalnewhomes int,
+        starting_landsizes int,
+        starting_land_price int,
+        starting_house_price int
       );
     `);
 

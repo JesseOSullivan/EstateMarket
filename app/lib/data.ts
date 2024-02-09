@@ -11,6 +11,25 @@ import {
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
 
+
+export async function fetchLocation() {
+  try {
+    // We artificially delay a response for demo purposes.
+    console.log('Fetching Location  data...');
+ 
+    const data = await sql<Revenue>`SELECT * FROM location`;
+ 
+    console.log('Data fetch completed after 3 seconds.');
+ 
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch Location data.');
+  }
+}
+
+
+
 export async function fetchRevenue() {
   try {
     // We artificially delay a response for demo purposes.
@@ -238,4 +257,6 @@ export async function getUser(email: string) {
     throw new Error('Failed to fetch user.');
   }
 }
+
+
 
