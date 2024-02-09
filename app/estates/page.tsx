@@ -29,47 +29,45 @@ type Estate = {
 const EstatesPage = ({ locationData }: { locationData: locationDataType[] }) => {
   const [Locations, setLocations] = useState<locationDataType[]>([]);
   const theme = useTheme();
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
-  const isMediumScreen = useMediaQuery(theme.breakpoints.only('md'));
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [isMobile, setIsMobile] = useState(false);
   const [view, setView] = useState<'map' | 'list'>('map'); // New state for managing view
 
-
+  useEffect(() => {
+    setLocations(locationData);
+  }, [locationData]);
 
   useEffect(() => {
-    if (view != 'map') return;
-    const map = new mapboxgl.Map({
-      container: 'map', // The container ID
-      style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
-      center: [145.7709, -16.918], // Coordinates of Cairns: [longitude, latitude]
-      zoom: 9, // Initial map zoom
-    });
-
-    map.addControl(new mapboxgl.NavigationControl());
-
-
-    // Ensure map is fully loaded before adding markers and popups
-    map.on('load', () => {
-
-      setLocations(locationData);
-
-      Locations.forEach((location) => {
-        // Create a popup
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-          `<h3>${location.addressid}</h3><p>${location.areasize}</p>`
-        );
-
-        // Create and add the marker
-        new mapboxgl.Marker()
-          .setLngLat([location.longitude, location.latitude])
-          .setPopup(popup) // sets a popup on this marker
-          .addTo(map);
+      if (view != 'map') return;
+      const map = new mapboxgl.Map({
+        container: 'map', // The container ID
+        style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
+        center: [145.7709, -16.918], // Coordinates of Cairns: [longitude, latitude]
+        zoom: 9, // Initial map zoom
       });
-    });
 
+      map.addControl(new mapboxgl.NavigationControl());
 
-  }, [view, Locations]);
+      if (Locations.length > 0) {
+
+      // Ensure map is fully loaded before adding markers and popups
+      map.on('load', () => {
+        console.log('Map loaded');
+        Locations.forEach((location) => {
+          // Create a popup
+          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+            `<h3>${location.addressid}</h3><p>${location.areasize}</p>`
+          );
+
+          // Create and add the marker
+          new mapboxgl.Marker()
+            .setLngLat([location.longitude, location.latitude])
+            .setPopup(popup) // sets a popup on this marker
+            .addTo(map);
+        });
+      });
+    }
+
+  }, [Locations]); // Add locationData as a dependency
 
   const simulateFetchEstates = (): Estate[] => {
     // Simulate fetching data with coordinates
@@ -105,59 +103,59 @@ const EstatesPage = ({ locationData }: { locationData: locationDataType[] }) => 
   const toggleView = () => {
     setView(prevView => prevView === 'map' ? 'list' : 'map');
   };
-  
+
 
   return (
     <Box sx={{ position: 'relative', height: '100vh' }}>
-  {isMobile ? (
-    <>
-    
-      {view === 'map' ? (
-            <Grid container>
-        <Grid item xs={12} md={8} lg={8} style={{ height: '100vh' }}>
-          <div  id="map" style={{ width: '100%', height: '100%' }}></div>
-        </Grid>
-        </Grid>
-      ) : (
+      {isMobile ? (
         <>
-          <div className='px-2' style={{ position: 'sticky',  top: '90px', zIndex: 10 }}> {/* Make search bar stick just below the navbar */}
-            <Search placeholder="Search Estates"  />
-          </div>
-          <Grid container spacing={2} style={{ padding: '20px' }}>
-            {Locations.map((locaiton, index) => (
-              <Grid item xs={12} key={index}>
-                <Card>
-                  <CardMedia
-                    component="img"
-                    height="140"
-                    image='https://via.placeholder.com/150'
-                    alt={locaiton.addressid}
-                  />
-                  <CardContent>
-                    <Typography gutterBottom variant="h5" component="div">
-                      {locaiton.citycouncil}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {locaiton.growthregion}
-                    </Typography>
-                  </CardContent>
-                </Card>
+
+          {view === 'map' ? (
+            <Grid container>
+              <Grid item xs={12} md={8} lg={8} style={{ height: '100vh' }}>
+                <div id="map" style={{ width: '100%', height: '100%' }}></div>
               </Grid>
-            ))}
-          </Grid>
+            </Grid>
+          ) : (
+            <>
+              <div className='px-2' style={{ position: 'sticky', top: '90px', zIndex: 10 }}> {/* Make search bar stick just below the navbar */}
+                <Search placeholder="Search Estates" />
+              </div>
+              <Grid container spacing={2} style={{ padding: '20px' }}>
+                {Locations.map((locaiton, index) => (
+                  <Grid item xs={12} key={index}>
+                    <Card>
+                      <CardMedia
+                        component="img"
+                        height="140"
+                        image='https://via.placeholder.com/150'
+                        alt={locaiton.addressid}
+                      />
+                      <CardContent>
+                        <Typography gutterBottom variant="h5" component="div">
+                          {locaiton.citycouncil}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {locaiton.growthregion}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            </>
+          )}
+          <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, p: 1, display: 'flex', justifyContent: 'center', }}>
+            <Button style={{ color: '#fff', backgroundColor: theme.palette.primary.main, }} variant="contained" onClick={toggleView}>
+              Switch to {view === 'map' ? 'List' : 'Map'}
+            </Button>
+          </Box>
         </>
-      )}
-      <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, p: 1, display: 'flex', justifyContent: 'center', }}>
-        <Button style={{ color: '#fff', backgroundColor: theme.palette.primary.main, }} variant="contained" onClick={toggleView}>
-          Switch to {view === 'map' ? 'List' : 'Map'}
-        </Button>
-      </Box>
-    </>
-  ) : (
+      ) : (
         // Non-mobile view
         <Grid container >
           <Grid item xs={12} sm={8} md={8} lg={8} style={{ height: '100vh' }}>
-          <div id="map" style={{ width: '100%', height: '100%' }}></div>
+            <div id="map" style={{ width: '100%', height: '100%' }}></div>
           </Grid>
           <Grid item xs={12} sm={4} md={4} lg={4} style={{ overflowY: 'auto', height: '100vh', padding: '20px' }}>
             <Search placeholder="Search Estates" />
