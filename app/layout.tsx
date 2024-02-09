@@ -1,7 +1,7 @@
 import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
 
-import Navbar from "@/app/ui/Navbar";
+import {Navbar} from "@/app/ui/Navbar";
 
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '@/theme';

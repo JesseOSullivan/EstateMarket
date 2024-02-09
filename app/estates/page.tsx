@@ -10,10 +10,10 @@ export default async function Page() {
   console.log(JSON.stringify(test))
   return (
     <main>
-      <h1 className={`mb-4 text-xl md:text-2xl`}>
+      <div >
         
       <EstatesPage locationData={test} />
-      </h1>
+      </div>
 
     </main>
   );

@@ -26,7 +26,8 @@ async function createTables() {
       CREATE TABLE IF NOT EXISTS developer (
         developerid SERIAL PRIMARY KEY,
         name VARCHAR(255) UNIQUE,
-        email VARCHAR(255)
+        email VARCHAR(255),
+        phone VARCHAR(255),
       );
     `);
 

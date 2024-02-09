@@ -13,7 +13,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 
 
-const Navbar = () => {
+export const Navbar = () => {
   const theme = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -168,4 +168,3 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
