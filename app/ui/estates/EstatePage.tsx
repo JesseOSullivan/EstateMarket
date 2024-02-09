@@ -167,7 +167,7 @@ const EstatesPage = ({ locationData }: { locationData: locationDataType[] }) => 
                       component="img"
                       height="140"
                       image='https://via.placeholder.com/150'
-                      alt={location.addressid}
+                      alt={location.citycouncil}
                     />
                     <CardContent>
                       <Typography gutterBottom variant="h5" component="div">
