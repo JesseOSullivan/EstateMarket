@@ -37,6 +37,8 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     setLocations(locationData);
   }, [locationData]);
 
+
+  
   useEffect(() => {
       if (view != 'map') return;
       const map = new mapboxgl.Map({
@@ -66,18 +68,33 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
             .addTo(map);
         });
       });
+
+
     }
+    map.on('moveend', () => fetchEstatesInViewport(map));
 
   }, [Locations]); // Add locationData as a dependency
+  const fetchEstatesInViewport = ( map : mapboxgl.Map ) => {
 
-  const simulateFetchEstates = (): Estate[] => {
-    // Simulate fetching data with coordinates
-    return [
-      { id: 1, name: "Estate 1", location: "Location 1", image: "https://via.placeholder.com/150", coordinates: { latitude: 39.833851, longitude: -74.871826 } },
-      { id: 2, name: "Estate 2", location: "Location 2", image: "https://via.placeholder.com/150", coordinates: { latitude: 40.71427, longitude: -74.00597 } },
-      // Add more mock estate objects with coordinates
-    ];
-  };
+    const bounds = map.getBounds();
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has('query')) {
+      params.delete('query');
+    }
+  
+    params.set('swLat', sw.lat.toFixed(6));
+    params.set('swLng', sw.lng.toFixed(6));
+    params.set('neLat', ne.lat.toFixed(6));
+    params.set('neLng', ne.lng.toFixed(6));
+
+  // Update the URL without navigating
+  window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
+
+ };
+
   useEffect(() => {
     // Check the viewport width when the component mounts
     const handleResize = () => {

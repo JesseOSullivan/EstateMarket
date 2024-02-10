@@ -47,7 +47,6 @@ export default function Search({ placeholder }: SearchProps) {
   const executeSearch = (values: string[]) => {
     console.log(`Searching... ${values.join(', ')}`);
     const params = new URLSearchParams(searchParams);
-    params.set('page', '1');
     if (values.length > 0) {
       params.set('query', values.join(','));
     } else {
@@ -167,22 +166,4 @@ const searchOptions: string[] = [
   "Option 10",
   "Option 11",
   "Option 12",
-  "Option 13",
-  "Option 14",
-  "Option 15",
-  "Option 16",
-  "Option 17",
-  "Option 18",
-  "Option 19",
-  "Option 20",
-  "Option 21",
-  "Option 22",
-  "Option 23",
-  "Option 24",
-  "Option 25",
-  "Option 26",
-  "Option 27",
-  "Option 28",
-  "Option 29",
-  "Option 30"
 ];
