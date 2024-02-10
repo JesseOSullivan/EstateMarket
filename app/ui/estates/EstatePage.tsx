@@ -1,7 +1,7 @@
 // estates.tsx
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Search from '@/app/ui/search'; // Assuming the Search component is saved in components folder
 import { Box, Card, CardContent, CardMedia, Typography, Grid, Button, useMediaQuery, useTheme } from '@mui/material';
@@ -11,9 +11,9 @@ import {
   SearchResult
 } from '@/app/lib/definitions';
 import { useDebouncedCallback } from 'use-debounce';
-import { fetchLocationByCoord } from '@/app/lib/data';
 import useSWR from 'swr';
-
+import { fetchLocationByCoordAction } from '@/app/lib/actions';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
 
 
@@ -22,19 +22,31 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   const theme = useTheme();
   const [isMobile, setIsMobile] = useState(false);
   const [view, setView] = useState<'map' | 'list'>('map'); // New state for managing view
-  const { data, error } = useSWR('/api/data');
+  //const params = useSearchParams();
+  const params = new URLSearchParams(window.location.search);
 
-  const fetchEstatesData = async () => {
-    console.log(data)
-    console.log(error);
-
-    //window.location.reload();
-
-  };
+  const router = useRouter();
 
   useEffect(() => {
-    console.log('Data:', data);
-  }, [data]);
+    console.log('fetching data aaaagian')
+    const swLat = parseFloat(params.get('swLat') || '');
+    const swLng = parseFloat(params.get('swLng') || '');
+    const neLat = parseFloat(params.get('neLat') || '');
+    const neLng = parseFloat(params.get('neLng') || '');
+    const updateData = async () => {
+    const t = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng)
+    setLocations(t.rows );
+  } 
+  updateData()
+  }
+  , []);
+
+  // use affect to reload when the coord params change 
+    
+  useEffect(() => {
+    console.log(Locations)
+  }
+  , [Locations]);
 
   useEffect(() => {
     setLocations(locationData);
@@ -43,7 +55,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
   
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    //const params = new URLSearchParams(window.location.search);
     const centerLat = params.get('centerLat');
     const centerLng = params.get('centerLng');
     const zoom = params.get('zoom');
@@ -84,8 +96,9 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     );
     addMArkets(map);
 
-  }, [Locations]); // Add locationData as a dependency
+  }, []); // Add locationData as a dependency
 
+  
 
   const addMArkets = (map: mapboxgl.Map) => {
     Locations.forEach((location) => {
@@ -109,7 +122,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     const bounds = map.getBounds();
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
-    const params = new URLSearchParams(window.location.search);
 
     if (params.has('query')) {
       params.delete('query');
@@ -132,7 +144,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       
     window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
 
-  fetchEstatesData();
 
  }, 400);
 

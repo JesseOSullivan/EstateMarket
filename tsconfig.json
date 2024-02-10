@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     "app/lib/placeholder-data.js",
     "scripts/seedTables.js"
-  ],
+, "app/api/route.ts"  ],
   "exclude": ["node_modules"]
 }

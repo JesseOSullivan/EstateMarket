@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-
+import { SearchResult } from './definitions';
 const FormSchema = z.object({
     id: z.string(),
     customerId: z.string(),
@@ -77,4 +77,44 @@ export async function deleteInvoice(id: string) {
       return { message: 'Database Error: Failed to Delete Invoice.' };
     }
   }
+
+
+  export async function fetchLocationByCoordAction(swLat: number, swLng: number, neLat: number, neLng: number) {
+    const result = await sql<SearchResult>`
+      SELECT
+        e.estateid,
+        e.estatename,
+        e.status,
+        e.developerid,
+        d.name AS developername, 
+        e.locationid,
+        e.pricerange,
+        e.totalnewhomes,
+        l.addressid,
+        l.citycouncil,
+        l.areasize,
+        l.growthregion,
+        l.latitude,
+        l.longitude,
+        a.fulladdress,
+        a.streetnumber,
+        a.streetname,
+        a.suburb,
+        a.state,
+        a.postcode,
+        a.country
+      FROM
+        estate e
+      INNER JOIN
+        location l ON e.locationid = l.locationid
+      INNER JOIN
+        developer d ON e.developerid = d.developerid 
+      INNER JOIN
+        address a ON l.addressid = a.addressid
+      WHERE 
+        l.latitude BETWEEN ${swLat} AND ${neLat} AND
+        l.longitude BETWEEN ${swLng} AND ${neLng};
+    `;
+    return result;
+    }
   

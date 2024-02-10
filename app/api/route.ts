@@ -1,4 +1,14 @@
-import { Pool } from 'pg';
+
+
+import { NextResponse } from "next/server"
+import { fetchLocationByCoord } from "../lib/data"
+export async function GET() {
+    
+  
+  return Response.json({ message: 'Hello from Next.js!' })
+}
+
+/*import { Pool } from 'pg';
 import { Request, Response } from 'express'; // Import the Request and Response types from 'express'
 
 const pool = new Pool({
@@ -17,3 +27,4 @@ export default async function handler(req: Request, res: Response) {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
+*/
