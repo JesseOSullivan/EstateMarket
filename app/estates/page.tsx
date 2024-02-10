@@ -9,6 +9,7 @@ import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
 import { Metadata } from 'next';
+import { SearchResult } from '../lib/definitions';
 
 
 export default async function Page({
@@ -24,16 +25,14 @@ export default async function Page({
     
   };
 }){
-  let locationData = [];
+  let locationData: SearchResult[] = [];
 
   if (searchParams?.query) {
     // Handle search by query
     const searchTerms = searchParams?.query.split(',');
-    const searchDataPromises = searchTerms.map((searchTerm) => 
-      fetchSearchLocation(searchTerm.trim())
-    );
-    const searchDataArray = await Promise.all(searchDataPromises);
-    locationData = searchDataArray.flat();
+    locationData = await fetchSearchLocation(searchParams?.query) ?? [];
+    //const searchDataArray = await Promise.all(searchDataPromises);
+    //locationData = searchDataArray.flat();
   } else if (searchParams?.swLat &&	 searchParams?.neLat &&	 searchParams?.swLng && searchParams?.neLng) {
     // Handle search by map coordinates
 
@@ -43,27 +42,14 @@ export default async function Page({
   }
 
   
-  /*const query = searchParams?.query || '';
-  const currentPage = Number(searchParams?.page) || 1;
-
-  // Split the query parameter into individual search terms
-  const searchTerms = query.split(',');
-
-  // Fetch search results for each search term and combine the results
-
-  if (query){
-    
-  }
-  const searchDataPromises = searchTerms.map(searchTerm => fetchSearchLocation(searchTerm.trim()));
-  const searchDataArray = await Promise.all(searchDataPromises);
-  const combinedSearchData = searchDataArray.flat(); // Combine results from all search terms
-*/
   return (
     <main>
       <div >
         
         {locationData ? (
-          <EstatesPage locationData={locationData} />
+          <EstatesPage locationData={locationData}
+          
+          />
         ) : (
           <EstatesPage locationData={[]} />
         )}
