@@ -134,7 +134,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
                       />
                       <CardContent>
                         <Typography gutterBottom variant="h5" component="div">
-                          {locaiton.citycouncil}
+                          {locaiton.estatename}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           {locaiton.growthregion}
@@ -172,7 +172,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
                     />
                     <CardContent>
                       <Typography gutterBottom variant="h5" component="div">
-                        {location.citycouncil}
+                        {location.estatename}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         {location.growthregion}

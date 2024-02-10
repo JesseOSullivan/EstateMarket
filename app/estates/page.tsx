@@ -21,17 +21,23 @@ export default async function Page({
 }){
 
 
-  const test  = await fetchLocation(); 
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const data = await fetchSearchLocation(query);
+
+  // Split the query parameter into individual search terms
+  const searchTerms = query.split(',');
+
+  // Fetch search results for each search term and combine the results
+  const searchDataPromises = searchTerms.map(searchTerm => fetchSearchLocation(searchTerm.trim()));
+  const searchDataArray = await Promise.all(searchDataPromises);
+  const combinedSearchData = searchDataArray.flat(); // Combine results from all search terms
 
   return (
     <main>
       <div >
         
-        {data ? (
-          <EstatesPage locationData={data} />
+        {searchDataPromises ? (
+          <EstatesPage locationData={combinedSearchData} />
         ) : (
           <EstatesPage locationData={[]} />
         )}
