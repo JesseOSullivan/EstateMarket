@@ -39,7 +39,7 @@ export default function Search({ placeholder }: SearchProps) {
   
   useEffect(() => {
     
-    const query = searchParams?.get('query');
+    const query = searchParams.get('query');
     if (query) {
       setSelectedOptions(query.split(','));
     }
@@ -47,7 +47,7 @@ export default function Search({ placeholder }: SearchProps) {
 
   const executeSearch = (values: string[]) => {
     console.log(`Searching... ${values.join(', ')}`);
-    const params = new URLSearchParams(searchParams || '');
+    const params = new URLSearchParams(searchParams);
     if (values.length > 0) {
       params.set('query', values.join(','));
     } else {
@@ -62,9 +62,9 @@ export default function Search({ placeholder }: SearchProps) {
   };
   
   const handleSearchButtonClick = () => {
-    const params = new URLSearchParams(searchParams || '');
+    const params = new URLSearchParams(searchParams);
     // Ensure 'estates' is only appended if not already in pathname
-    const newPath = pathname ? (pathname.endsWith('/estates') ? pathname : `${pathname}estates`) : '';
+    const newPath = pathname.endsWith('/estates') ? pathname : `${pathname}estates`;
     router.replace(`${newPath}?${params.toString()}`);
   }
   
