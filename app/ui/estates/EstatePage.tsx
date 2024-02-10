@@ -33,7 +33,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
   useEffect(() => {
-    console.log('fetching data aaaagian')
     const swLat = parseFloat(params.get('swLat') || '');
     const swLng = parseFloat(params.get('swLng') || '');
     const neLat = parseFloat(params.get('neLat') || '');
@@ -109,6 +108,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   // add markers seperate 
   useEffect(() => {  
     if (map) {
+      console.log('addmarkers 2')
       addMarkers(map);
 
       map.on('moveend', () => fetchEstatesInViewport(map)) ;
@@ -119,7 +119,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       };
   
     }
-  }, [map, location]);
+  }, [Locations]);
   
 
   const addMarkers = (map: mapboxgl.Map) => {
@@ -165,9 +165,10 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     params.set('zoom', zoom.toFixed(2));
       
     window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
-    addMarkers(map);
+    setTest(test + 1)
 
-      setTest(test + 1)
+
+
  }, 400);
 
   useEffect(() => {
