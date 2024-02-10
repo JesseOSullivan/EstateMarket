@@ -14,6 +14,8 @@ import { useDebouncedCallback } from 'use-debounce';
 import useSWR from 'swr';
 import { fetchLocationByCoordAction } from '@/app/lib/actions';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+
+
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
 
 
@@ -23,9 +25,12 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [view, setView] = useState<'map' | 'list'>('map'); // New state for managing view
   //const params = useSearchParams();
-  const params = new URLSearchParams(window.location.search);
+  const [test, setTest] = useState(1)
+  const [markers, setMarkers] = useState<mapboxgl.Marker[]>([]);
 
-  const router = useRouter();
+  const params = new URLSearchParams(window.location.search);
+  const [map, setMap ] = useState<mapboxgl.Map>()
+
 
   useEffect(() => {
     console.log('fetching data aaaagian')
@@ -38,8 +43,8 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     setLocations(t.rows );
   } 
   updateData()
-  }
-  , []);
+  
+}, [test]);
 
   // use affect to reload when the coord params change 
     
@@ -62,62 +67,79 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     if (view != 'map') return;
 
 
-    let map : mapboxgl.Map;
     if (centerLat && centerLng && zoom) {
-      map = new mapboxgl.Map({
+      const map = new mapboxgl.Map({
         container: 'map', // The container ID
         style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
         center: [parseFloat(centerLng), parseFloat(centerLat)], // Coordinates of Cairns: [longitude, latitude]
         zoom: parseInt(zoom), // Initial map zoom
       });
+      setMap(map)      
+      
+
+
     } else {
-      map = new mapboxgl.Map({
+     const  map = new mapboxgl.Map({
         container: 'map', // The container ID
         style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
         center: locationData[0] ? [locationData[0].longitude, locationData[0].latitude] : [145.807925, 17.146474], // Coordinates of Cairns: [longitude, latitude]
         zoom: 10, // Initial map zoom
+        
       });
+      setMap(map)
+
     }
     
         // console log map zoom 
         
-      map.addControl(new mapboxgl.NavigationControl());
+      map?.addControl(new mapboxgl.NavigationControl());
 
       if (Locations.length > 0) {
 
       // Ensure map is fully loaded before adding markers and popups
-      map.on('load', () => {
-        console.log('Map loaded');
+      map?.on('load', () => {
+        addMarkers(map);
+
       });
-
-
     }
-    map.on('moveend', () => fetchEstatesInViewport(map)
-    );
-    addMArkets(map);
+
 
   }, []); // Add locationData as a dependency
 
+  // add markers seperate 
+  useEffect(() => {  
+    if (map) {
+      addMarkers(map);
+
+      map.on('moveend', () => fetchEstatesInViewport(map)) ;
+
+      return () => {
+        // Clean up event listeners
+        map.off('moveend',  () => fetchEstatesInViewport(map));
+      };
+  
+    }
+  }, [map, location]);
   
 
-  const addMArkets = (map: mapboxgl.Map) => {
-    Locations.forEach((location) => {
-      // Create a popup
-      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-        `<h3>${location.addressid}</h3><p>${location.areasize}</p>`
-      );
+  const addMarkers = (map: mapboxgl.Map) => {
 
-      // Create and add the marker
-      new mapboxgl.Marker()
-        .setLngLat([location.longitude, location.latitude])
-        .setPopup(popup) // sets a popup on this marker
-        .addTo(map);
-    });
+    markers.forEach(marker => marker.remove());
 
+      const newMarkers = Locations.map((location) => {
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+          `<h3>${location.addressid}</h3><p>${location.areasize}</p>`
+        );
+        return new mapboxgl.Marker()
+          .setLngLat([location.longitude, location.latitude])
+          .setPopup(popup)
+          .addTo(map);
+      });
+      // Update the markers state with the new markers
+      setMarkers(newMarkers);
   }
   
   const fetchEstatesInViewport = useDebouncedCallback(( map : mapboxgl.Map ) => {
-    console.log('Fetching estates in viewport')
 
     const bounds = map.getBounds();
     const sw = bounds.getSouthWest();
@@ -143,8 +165,9 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     params.set('zoom', zoom.toFixed(2));
       
     window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+    addMarkers(map);
 
-
+      setTest(test + 1)
  }, 400);
 
   useEffect(() => {
