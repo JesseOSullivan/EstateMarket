@@ -104,11 +104,34 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
           `<h3>${location.addressid}</h3><p>${location.areasize}</p>`
         );
-        return new mapboxgl.Marker()
-          .setLngLat([location.longitude, location.latitude])
-          .setPopup(popup)
-          .addTo(map);
-      });
+
+                // Create a new HTML element to use as a custom marker
+                const el = document.createElement('div');
+                // Apply Tailwind CSS classes for styling the custom marker
+                el.className = 'w-7 h-7 shadow border-4   border-white rounded-full bg-primary-main';
+                
+                el.addEventListener('mouseenter', () => {
+                  el.classList.remove('bg-primary-main');
+                  el.classList.add('bg-blue-700');
+                  el.classList.add('w-8');
+                  el.classList.add('h-8');
+                            
+                });
+                
+                el.addEventListener('mouseleave', () => {
+                  el.classList.remove('bg-blue-700');
+                  el.classList.remove('w-8');
+                  el.classList.remove('h-8');
+                  el.classList.add('bg-primary-main');
+                                            });
+                
+                const marker = new mapboxgl.Marker(el) // Consider using 'center' as the anchor
+                  .setLngLat([location.longitude, location.latitude])
+                  .setPopup(popup)
+                  .addTo(map);
+                
+                return marker;
+                      });
       // Update the markers state with the new markers
       setMarkers(newMarkers);
   }
