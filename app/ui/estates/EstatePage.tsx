@@ -74,14 +74,15 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
     } else {
+
      const  map = new mapboxgl.Map({
         container: 'map', // The container ID
         style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
-        center: locationData[0] ? [locationData[0].longitude, locationData[0].latitude] : [145.807925, 17.146474], // Coordinates of Cairns: [longitude, latitude]
-        zoom: 10, // Initial map zoom
+        center: Locations[0] ? [Locations[0].longitude, Locations[0].latitude] : [133.7751, -30], // coord of center australia 
+        zoom: Locations[0] ? 8 : 4, // Initial map zoom
       });
       setMap(map)
-      
+    
     }
       map?.addControl(new mapboxgl.NavigationControl());
       if (Locations.length > 0) {
