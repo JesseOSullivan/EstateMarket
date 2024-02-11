@@ -7,14 +7,13 @@ import Search from '@/app/ui/search'; // Assuming the Search component is saved 
 import { Box, Card, CardContent, CardMedia, Typography, Grid, Button, useMediaQuery, useTheme } from '@mui/material';
 import "mapbox-gl/dist/mapbox-gl.css";
 import {
-  locationDataType,
   SearchResult
 } from '@/app/lib/definitions';
 import { useDebouncedCallback } from 'use-debounce';
-import useSWR from 'swr';
 import { fetchLocationByCoordAction } from '@/app/lib/actions';
-import { useSearchParams,  useRouter, usePathname } from 'next/navigation';
-import path from 'path';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import CustomPopup from './CustomPopup';
+import { createRoot } from 'react-dom/client'; // Import createRoot from React 18
 
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
@@ -29,23 +28,23 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   const [test, setTest] = useState(1)
   const [markers, setMarkers] = useState<mapboxgl.Marker[]>([]);
   const pathname = usePathname();
-  const [map, setMap ] = useState<mapboxgl.Map>()
+  const [map, setMap] = useState<mapboxgl.Map>()
   const searchParams = useSearchParams();
   const router = useRouter();
   const params = new URLSearchParams(searchParams.toString())
 
 
   // use affect to reload when the coord params change 
-    
+
   useEffect(() => {
     console.log("params.toString()")
     console.log(params.toString())
-  
+
     console.log(Locations)
   }
-  , [Locations]);
+    , [Locations]);
 
-  
+
 
   useEffect(() => {
     setLocations(locationData);
@@ -69,23 +68,23 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
         center: [parseFloat(centerLng), parseFloat(centerLat)], // Coordinates of Cairns: [longitude, latitude]
         zoom: parseInt(zoom), // Initial map zoom
       });
-      setMap(map)      
-      
+      setMap(map)
+
 
 
     } else {
 
-     const  map = new mapboxgl.Map({
+      const map = new mapboxgl.Map({
         container: 'map', // The container ID
         style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
         center: Locations[0] ? [Locations[0].longitude, Locations[0].latitude] : [133.7751, -30], // coord of center australia 
         zoom: Locations[0] ? 8 : 4, // Initial map zoom
       });
       setMap(map)
-    
+
     }
-      map?.addControl(new mapboxgl.NavigationControl());
-      if (Locations.length > 0) {
+    map?.addControl(new mapboxgl.NavigationControl());
+    if (Locations.length > 0) {
       // Ensure map is fully loaded before adding markers and popups
       map?.on('load', () => {
         addMarkers(map);
@@ -100,61 +99,76 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
     markers.forEach(marker => marker.remove());
 
-      const newMarkers = Locations.map((location) => {
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-          `<h3>${location.addressid}</h3><p>${location.areasize}</p>`
-        );
+    const newMarkers = Locations.map((location) => {
+      const placeholder = document.createElement('div');
+      document.body.appendChild(placeholder);
+      //const root = createRoot(placeholder);
+     /* root.render(
+        <CustomPopup
+          title={location.estatename}
+          price={`${location.pricerange || 'Price not available'}`}
+          address={location.fulladdress}
+          bedrooms={4}
+          bathrooms={2}
+          parking={2}
+          imageSrc='https://via.placeholder.com/150'
+          logoSrc='https://via.placeholder.com/50'
+        />
+      );*/
+      const popup = new mapboxgl.Popup({ offset: 25 })//.setDOMContent(placeholder)
 
-                // Create a new HTML element to use as a custom marker
-                const el = document.createElement('div');
-                // Apply Tailwind CSS classes for styling the custom marker
-                el.className = 'w-7 h-7 shadow border-4   border-white rounded-full bg-primary-main';
-                
-                el.addEventListener('mouseenter', () => {
-                  el.classList.remove('bg-primary-main');
-                  el.classList.add('bg-blue-700');
-                  el.classList.add('w-8');
-                  el.classList.add('h-8');
-                            
-                });
-                
-                el.addEventListener('mouseleave', () => {
-                  el.classList.remove('bg-blue-700');
-                  el.classList.remove('w-8');
-                  el.classList.remove('h-8');
-                  el.classList.add('bg-primary-main');
-                                            });
-                
-                const marker = new mapboxgl.Marker(el) // Consider using 'center' as the anchor
-                  .setLngLat([location.longitude, location.latitude])
-                  .setPopup(popup)
-                  .addTo(map);
-                
-                return marker;
-                      });
-      // Update the markers state with the new markers
-      setMarkers(newMarkers);
+        // Create a new HTML element to use as a custom marker
+        const el = document.createElement('div');
+        // Apply Tailwind CSS classes for styling the custom marker
+      el.className = 'w-7 h-7 shadow border-4   border-white rounded-full bg-primary-main';
+
+      el.addEventListener('mouseenter', () => {
+        el.classList.remove('bg-primary-main');
+        el.classList.add('bg-blue-700');
+        el.classList.add('w-8');
+        el.classList.add('h-8');
+
+      });
+
+      el.addEventListener('mouseleave', () => {
+        el.classList.remove('bg-blue-700');
+        el.classList.remove('w-8');
+        el.classList.remove('h-8');
+        el.classList.add('bg-primary-main');
+      });
+
+      const marker = new mapboxgl.Marker(el) // Consider using 'center' as the anchor
+        .setLngLat([location.longitude, location.latitude])
+        .setPopup(popup)
+        .addTo(map);
+        marker.setPopup(new mapboxgl.Popup({ offset: 25 }).setDOMContent(placeholder));
+        addPopup(<h1>Losers of 1966 World Cup</h1>, 52.5, 13.4);
+
+      return marker;
+    });
+    // Update the markers state with the new markers
+    setMarkers(newMarkers);
   }
-  
+
   // add markers seperate 
-  useEffect(() => {  
+  useEffect(() => {
 
 
     if (map) {
       addMarkers(map);
 
-      map.on('moveend', () => fetchEstatesInViewport(map)) ;
+      map.on('moveend', () => fetchEstatesInViewport(map));
 
       return () => {
         // Clean up event listeners
-        map.off('moveend',  () => fetchEstatesInViewport(map));
+        map.off('moveend', () => fetchEstatesInViewport(map));
       };
-  
+
     }
   }, [Locations]);
 
 
-  const fetchEstatesInViewport = useDebouncedCallback(( map : mapboxgl.Map ) => {
+  const fetchEstatesInViewport = useDebouncedCallback((map: mapboxgl.Map) => {
 
     const bounds = map.getBounds();
     const sw = bounds.getSouthWest();
@@ -164,13 +178,13 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       params.delete('query');
 
     }
-  
+
     const centerLat = (sw.lat + ne.lat) / 2;
     const centerLng = (sw.lng + ne.lng) / 2;
-  
+
     // Get zoom level
     const zoom = map.getZoom();
-  
+
     // Update URL parameters with viewport bounds, zoom level, and center coordinates
     params.set('swLat', sw.lat.toFixed(6));
     params.set('swLng', sw.lng.toFixed(6));
@@ -182,7 +196,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
     router.replace(`${pathname}?${params.toString()}`);
 
-    
+
     const swLat = parseFloat(sw.lat.toFixed(6));
     const swLng = parseFloat(sw.lng.toFixed(6));
     const neLat = parseFloat(ne.lat.toFixed(6));
@@ -190,19 +204,19 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
     const updateData = async () => {
-    const t = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng)
-    if (t) {
-      setLocations(t.rows );
+      const t = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng)
+      if (t) {
+        setLocations(t.rows);
+
+      }
+    }
+    if (swLat && swLng && neLat && neLng) {
+      updateData()
 
     }
-  } 
-  if (swLat && swLng && neLat && neLng) {
-  updateData()
-
-  }
 
 
- }, 400);
+  }, 400);
 
   useEffect(() => {
     // Check the viewport width when the component mounts
@@ -256,7 +270,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
                         component="img"
                         height="140"
                         image='https://via.placeholder.com/150'
-                      alt={String(locaiton.citycouncil)} // Ensure addressid is converted to a string
+                        alt={String(locaiton.citycouncil)} // Ensure addressid is converted to a string
                       />
                       <CardContent>
                         <Typography gutterBottom variant="h5" component="div">

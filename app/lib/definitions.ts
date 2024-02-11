@@ -113,6 +113,7 @@ export type SearchResult = {
   growthregion: string;
   latitude: number;
   longitude: number;
+  fulladdress: string;
 }
 
 
