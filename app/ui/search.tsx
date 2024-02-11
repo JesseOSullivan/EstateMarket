@@ -12,6 +12,7 @@ import TuneIcon from '@mui/icons-material/Tune';// Define the props type for the
 import Box from '@mui/material/Box'; // Import Box from MUI for layout purposes
 import { Filter } from './Filter';
 import { useSpring, animated } from '@react-spring/web';
+import { set } from 'zod';
 
 type SearchProps = {
   placeholder: string;
@@ -20,14 +21,14 @@ type SearchProps = {
 
 
 // Define the Search component with TypeScript
-export default function Search({ placeholder }: SearchProps) {
+export default function Search({ placeholder }: SearchProps, {searchOptionsProps }: {searchOptionsProps: string[]}) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const closeFilter = () => setIsFilterVisible(false);
-  
+
   const filterCategories = ["Category 1", "Category 2", "Category 3"]; // Example categories
   const applyFilters = (selectedCategories: string[]) => {
     console.log("Applying filters: ", selectedCategories);
@@ -36,9 +37,18 @@ export default function Search({ placeholder }: SearchProps) {
     // Here, you can integrate the logic to apply these filters to your search query
   };
   const toggleFilterVisibility = () => setIsFilterVisible(!isFilterVisible);
-  
+
+  const handleSearchBarClick = () => {
+    // Reset selected options to an empty array
+    setSelectedOptions([]);
+  };
+
   useEffect(() => {
     const query = searchParams.get('query');
+    if (searchParams.get('swLat')) {
+      setSelectedOptions(["Map Area"]);
+    }
+
     if (query) {
       setSelectedOptions(query.split(','));
     }
@@ -60,14 +70,14 @@ export default function Search({ placeholder }: SearchProps) {
     setSelectedOptions(newValues);
     executeSearch(newValues);
   };
-  
+
   const handleSearchButtonClick = () => {
     const params = new URLSearchParams(searchParams);
     // Ensure 'estates' is only appended if not already in pathname
     const newPath = pathname.endsWith('/estates') ? pathname : `${pathname}estates`;
     router.replace(`${newPath}?${params.toString()}`);
   }
-  
+
 
   const renderTags = (value: string[], getTagProps: (value: any) => any) =>
     value.map((option: string, index: number) => (
@@ -99,7 +109,8 @@ export default function Search({ placeholder }: SearchProps) {
         renderInput={(params) => (
           <Box display="flex" alignItems="center" style={{ borderRadius: '30px', background: '#fff' }}>
             <TextField
-                onKeyDown={(event: React.KeyboardEvent) => {
+            onMouseDown={handleSearchBarClick}
+              onKeyDown={(event: React.KeyboardEvent) => {
                 if (event.key === 'Enter') {
                   // Prevent the default action to avoid form submission if this is inside a form
                   event.preventDefault();
@@ -107,7 +118,7 @@ export default function Search({ placeholder }: SearchProps) {
                   handleSearchButtonClick();
                 }
               }}
-            
+
               {...params}
               fullWidth
               placeholder={placeholder}
@@ -120,7 +131,7 @@ export default function Search({ placeholder }: SearchProps) {
               style={{ flexGrow: 1 }} // Allow the TextField to grow as needed
             />
             <Box className="flex items-center"> {/* This box contains the icons and positions them at the end */}
-            <IconButton className="p-2" onClick={toggleFilterVisibility}>
+              <IconButton className="p-2" onClick={toggleFilterVisibility}>
                 <TuneIcon />
               </IconButton>
               <IconButton className="p-2" onClick={handleSearchButtonClick}>
@@ -131,23 +142,23 @@ export default function Search({ placeholder }: SearchProps) {
         )}
 
       />
-  {/* Conditional rendering for backdrop */}
-  {isFilterVisible && (
-  <animated.div
-    style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Ensure this is the only source of opacity
-    }}
-    onClick={() => setIsFilterVisible(false)} // Optionally close filter on backdrop click
-  ></animated.div>
-)}
+      {/* Conditional rendering for backdrop */}
+      {isFilterVisible && (
+        <animated.div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Ensure this is the only source of opacity
+          }}
+          onClick={() => setIsFilterVisible(false)} // Optionally close filter on backdrop click
+        ></animated.div>
+      )}
 
-  {/* Filter Component */}
-  {isFilterVisible && <Filter categories={filterCategories} applyFilters={applyFilters} closeFilter={closeFilter} />}
+      {/* Filter Component */}
+      {isFilterVisible && <Filter categories={filterCategories} applyFilters={applyFilters} closeFilter={closeFilter} />}
 
     </Box>
   );

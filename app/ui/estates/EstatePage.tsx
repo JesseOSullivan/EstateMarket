@@ -13,7 +13,8 @@ import {
 import { useDebouncedCallback } from 'use-debounce';
 import useSWR from 'swr';
 import { fetchLocationByCoordAction } from '@/app/lib/actions';
-import { useSearchParams,  useRouter } from 'next/navigation';
+import { useSearchParams,  useRouter, usePathname } from 'next/navigation';
+import path from 'path';
 
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
@@ -27,7 +28,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   //const params = useSearchParams();
   const [test, setTest] = useState(1)
   const [markers, setMarkers] = useState<mapboxgl.Marker[]>([]);
-
+  const pathname = usePathname();
   const [map, setMap ] = useState<mapboxgl.Map>()
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -37,18 +38,23 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   // use affect to reload when the coord params change 
     
   useEffect(() => {
+    console.log("params.toString()")
+    console.log(params.toString())
+  
     console.log(Locations)
   }
   , [Locations]);
 
-  useEffect(() => {
+  
 
+  useEffect(() => {
     setLocations(locationData);
   }, [locationData]);
 
 
-  
+  // only on first load
   useEffect(() => {
+
     //const params = new URLSearchParams(window.location.search);
     const centerLat = params.get('centerLat');
     const centerLng = params.get('centerLng');
@@ -89,9 +95,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   }, []); // Add locationData as a dependency
 
 
-
-  
-
   const addMarkers = (map: mapboxgl.Map) => {
 
     markers.forEach(marker => marker.remove());
@@ -111,8 +114,9 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   
   // add markers seperate 
   useEffect(() => {  
+
+
     if (map) {
-      console.log(map)
       addMarkers(map);
 
       map.on('moveend', () => fetchEstatesInViewport(map)) ;
@@ -134,6 +138,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
     if (params.has('query')) {
       params.delete('query');
+
     }
   
     const centerLat = (sw.lat + ne.lat) / 2;
@@ -150,8 +155,10 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     params.set('centerLat', centerLat.toFixed(6));
     params.set('centerLng', centerLng.toFixed(6));
     params.set('zoom', zoom.toFixed(2));
-    history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
 
+    router.replace(`${pathname}?${params.toString()}`);
+
+    
     const swLat = parseFloat(sw.lat.toFixed(6));
     const swLng = parseFloat(sw.lng.toFixed(6));
     const neLat = parseFloat(ne.lat.toFixed(6));
@@ -160,14 +167,16 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
     const updateData = async () => {
     const t = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng)
-    console.log(t)
     if (t) {
       setLocations(t.rows );
+
     }
   } 
   if (swLat && swLng && neLat && neLng) {
   updateData()
+
   }
+
 
  }, 400);
 
