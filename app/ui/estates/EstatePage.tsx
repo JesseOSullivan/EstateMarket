@@ -14,7 +14,7 @@ import { fetchLocationByCoordAction } from '@/app/lib/actions';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import CustomPopup from './CustomPopup';
 import { createRoot } from 'react-dom/client'; // Import createRoot from React 18
-import  ReactDOM from 'react-dom';
+
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
 
@@ -96,64 +96,54 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
   const addMarkers = (map: mapboxgl.Map) => {
-
-  
-  
-
-    // above 
-
+    
 
     markers.forEach(marker => marker.remove());
 
     const newMarkers = Locations.map((location) => {
-      
-      const placeholder = document.createElement('div');
-      ReactDOM.render(        
-         <CustomPopup
-        title={location.estatename}
-        price={`${location.pricerange || 'Price not available'}`}
-        address={location.fulladdress}
-        bedrooms={4}
-        bathrooms={2}
-        parking={2}
-        imageSrc='https://via.placeholder.com/150' // Use actual image URL
-        logoSrc='https://via.placeholder.com/50' // Use actual logo URL
+      const popupElement = document.createElement('div');
+      document.body.appendChild(popupElement); // Append to DOM
+      const root = createRoot(popupElement); // Create React root
+      root.render(
+        <CustomPopup
+          title={location.estatename}
+          price={`${location.pricerange || 'Price not available'}`}
+          address={location.fulladdress}
+          bedrooms={4}
+          bathrooms={2}
+          parking={2}
+          imageSrc='https://via.placeholder.com/150' // Use actual image URL
+          logoSrc='https://via.placeholder.com/50' // Use actual logo URL
         />
-        , placeholder);
+      );
   
-      const pop = new mapboxgl.Popup(
-        { 
-          offset: 25, // You can adjust the offset to move the popup further from its anchor point
-          //anchor: 'bottom-right' // Set the popup to appear above the marker
-      }).setDOMContent(placeholder);
-  
+      const popup = new mapboxgl.Popup({ offset: 25 }).setDOMContent(popupElement)
 
         // Create a new HTML element to use as a custom marker
       const el = document.createElement('div');
       // Apply Tailwind CSS classes for styling the custom marker
-      el.className = 'w-6 h-6 shadow border-4   border-white rounded-full bg-primary-main';
+      el.className = 'w-7 h-7 shadow border-4   border-white rounded-full bg-primary-main';
 
       el.addEventListener('mouseenter', () => {
         el.classList.remove('bg-primary-main');
         el.classList.add('bg-blue-700');
-        el.classList.add('w-7');
-        el.classList.add('h-7');
+        el.classList.add('w-8');
+        el.classList.add('h-8');
 
       });
 
       el.addEventListener('mouseleave', () => {
         el.classList.remove('bg-blue-700');
-        el.classList.remove('w-7');
-        el.classList.remove('h-7');
+        el.classList.remove('w-8');
+        el.classList.remove('h-8');
         el.classList.add('bg-primary-main');
       });
 
       const marker = new mapboxgl.Marker(el) // Consider using 'center' as the anchor
         .setLngLat([location.longitude, location.latitude])
-        .setPopup(pop)
+        .setPopup(popup)
         .addTo(map);
 
-          
       return marker;
     });
     // Update the markers state with the new markers
