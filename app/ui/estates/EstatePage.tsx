@@ -44,7 +44,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     }
   } 
   updateData()
-  
 }, [test]);
 
   // use affect to reload when the coord params change 
@@ -55,6 +54,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   , [Locations]);
 
   useEffect(() => {
+
     setLocations(locationData);
   }, [locationData]);
 
@@ -110,7 +110,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   // add markers seperate 
   useEffect(() => {  
     if (map) {
-      console.log('addmarkers 2')
       addMarkers(map);
 
       map.on('moveend', () => fetchEstatesInViewport(map)) ;

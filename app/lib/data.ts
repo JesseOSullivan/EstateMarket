@@ -12,6 +12,78 @@ import {
 } from './definitions';
 import { formatCurrency } from './utils';
 import { unstable_noStore as noStore } from 'next/cache';
+import { createClient } from '@vercel/postgres';
+
+
+
+export async function fetchSearchLocation(searchTerms: string[]) {
+  try {
+    console.log('Fetching search location data...');
+    if (searchTerms && searchTerms.length > 0) {
+      console.log(searchTerms);
+
+      const client = createClient(); // Create a new client
+      await client.connect(); // Connect to the database
+
+      try {
+        // Construct the WHERE clause dynamically based on the search terms
+        const whereClause = searchTerms.map((term, index) => `e.estatename ILIKE '%' || $${index + 1} || '%' OR
+          d.name ILIKE '%' || $${index + 1} || '%' OR
+          a.fulladdress ILIKE '%' || $${index + 1} || '%' OR
+          l.growthregion ILIKE '%' || $${index + 1} || '%'`).join(' OR ');
+
+        // Construct the complete SQL query
+        const query = `
+          SELECT
+            e.estateid,
+            e.estatename,
+            e.status,
+            e.developerid,
+            d.name AS developername, 
+            e.locationid,
+            e.pricerange,
+            e.totalnewhomes,
+            l.addressid,
+            l.citycouncil,
+            l.areasize,
+            l.growthregion,
+            l.latitude,
+            l.longitude,
+            a.fulladdress,
+            a.streetnumber,
+            a.streetname,
+            a.suburb,
+            a.state,
+            a.postcode,
+            a.country
+          FROM
+            estate e
+          INNER JOIN
+            location l ON e.locationid = l.locationid
+          INNER JOIN
+            developer d ON e.developerid = d.developerid 
+          INNER JOIN
+            address a ON l.addressid = a.addressid
+          WHERE 
+            ${whereClause}
+        `;
+
+        // Execute the query
+        const result = await client.query(query, searchTerms);
+        return result.rows;
+      } finally {
+        await client.end(); // Disconnect from the database
+      }
+    } else {
+      // If no search terms provided, return empty array or handle as appropriate
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching search location data:', error);
+    throw error;
+  }
+}
+
 
 
 export async function fetchLocationByCoord(swLat: number, swLng: number, neLat: number, neLng: number) {
@@ -60,62 +132,6 @@ export async function fetchLocationByCoord(swLat: number, swLng: number, neLat: 
 }
 
 
-export async function fetchSearchLocation(searchTerm: string[]) {
-  try {
-    console.log('Fetching search location data...');
-    if (searchTerm) {
-      console.log(searchTerm)
-      const result = await sql<SearchResult>`
-      SELECT
-        e.estateid,
-        e.estatename,
-        e.status,
-        e.developerid,
-        d.name AS developername, 
-        e.locationid,
-        e.pricerange,
-        e.totalnewhomes,
-        l.addressid,
-        l.citycouncil,
-        l.areasize,
-        l.growthregion,
-        l.latitude,
-        l.longitude,
-        a.fulladdress,
-        a.streetnumber,
-        a.streetname,
-        a.suburb,
-        a.state,
-        a.postcode,
-        a.country
-      FROM
-        estate e
-      INNER JOIN
-        location l ON e.locationid = l.locationid
-      INNER JOIN
-        developer d ON e.developerid = d.developerid 
-      INNER JOIN
-        address a ON l.addressid = a.addressid
-      WHERE 
-        e.estatename ILIKE  '%' || ${searchTerm} || '%' OR
-        d.name ILIKE  '%' || ${searchTerm} || '%' OR
-        a.fulladdress ILIKE  '%' || ${searchTerm} || '%' OR
-        a.suburb ILIKE  '%' || ${searchTerm} || '%' OR
-        a.state ILIKE  '%' || ${searchTerm} || '%' OR
-        a.postcode ILIKE  '%' || ${searchTerm} || '%' OR
-        l.growthregion ILIKE  '%' || ${searchTerm} || '%' OR
-        a.country ILIKE  '%' || ${searchTerm} || '%';
-        
-`;
-return result.rows;
-
-}
-
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch search results. ' + error);
-  }
-}
 
 
 export async function fetchLocation() {
