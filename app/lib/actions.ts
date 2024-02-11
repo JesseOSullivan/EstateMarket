@@ -78,48 +78,23 @@ export async function deleteInvoice(id: string) {
     }
   }
 
-  const locationCache = new Map<string, {data: any, box: Coordinates}>();
-  interface Coordinates {
-    swLat: number;
-    swLng: number;
-    neLat: number;
-    neLng: number;
-  }
-  
-  function generateCacheKey(box: Coordinates, precision = 1): string {
-    // Consider broadening the scope here if needed
+  const locationCache = new Map();
+
+  function generateCacheKey(swLat: number, swLng: number, neLat: number, neLng: number, precision = 1) {
+    // Round the coordinates to reduce sensitivity to minor map movements
     const round = (num: number) => Math.round(num * Math.pow(10, precision)) / Math.pow(10, precision);
-    return `locations-${round(box.swLat)}-${round(box.swLng)}-${round(box.neLat)}-${round(box.neLng)}`;
-  }
-  function isWithinCachedBox(requested: Coordinates, cachedBox: Coordinates): boolean {
-    return requested.swLat >= cachedBox.swLat && requested.swLng >= cachedBox.swLng &&
-           requested.neLat <= cachedBox.neLat && requested.neLng <= cachedBox.neLng;
-  }
-  function resetCache() {
-    locationCache.clear();
-    console.log('Cache has been reset.');
+    return `locations-${round(swLat)}-${round(swLng)}-${round(neLat)}-${round(neLng)}`;
   }
   
   export async function fetchLocationByCoordAction(swLat: number, swLng: number, neLat: number, neLng: number, ) {
-    let cacheHit = false;
-    let cachedResult;
-    //resetCache()
-    locationCache.forEach((value, key) => {
-      if (isWithinCachedBox({swLat, swLng, neLat, neLng}, value.box)) {
-        console.log(`Cache hit for box: ${key}`);
-        cacheHit = false;
-        cachedResult = value.data;
-        // Early exit from loop if a cache hit is found
-        return;
-      }
-    });
-
-    if (cacheHit) {
-        return cachedResult;
-    }   
-    
-else {
-    console.log('Cache miss. Querying database...');
+  // Create a unique key for each set of coordinates
+  const cacheKey = generateCacheKey(swLat, swLng, neLat, neLng);
+  // Check if the result is in the cache
+  if (locationCache.has(cacheKey)) {
+    console.log(`Cache hit for key: ${cacheKey}`);
+    return locationCache.get(cacheKey); // Return cached result
+  } else {
+    console.log(`Cache miss for key: ${cacheKey}. Querying database...`);
     const result = await sql<SearchResult>`
       SELECT
         e.estateid,
@@ -155,9 +130,7 @@ else {
         l.latitude BETWEEN ${swLat} AND ${neLat} AND
         l.longitude BETWEEN ${swLng} AND ${neLng};
     `;
-    const box: Coordinates = {swLat, swLng, neLat, neLng};
-    const cacheKey = generateCacheKey(box);
-    locationCache.set(cacheKey, {data: result, box});
+    locationCache.set(cacheKey, result);
     return result;
   }
 }

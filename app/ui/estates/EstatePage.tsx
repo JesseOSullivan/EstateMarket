@@ -13,7 +13,7 @@ import {
 import { useDebouncedCallback } from 'use-debounce';
 import useSWR from 'swr';
 import { fetchLocationByCoordAction } from '@/app/lib/actions';
-import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { useSearchParams,  useRouter } from 'next/navigation';
 
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
@@ -28,26 +28,11 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   const [test, setTest] = useState(1)
   const [markers, setMarkers] = useState<mapboxgl.Marker[]>([]);
 
-  const params = new URLSearchParams(window.location.search);
   const [map, setMap ] = useState<mapboxgl.Map>()
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const params = new URLSearchParams(searchParams.toString())
 
-  useEffect(() => {
-    const swLat = parseFloat(searchParams.get('swLat') || '');
-    const swLng = parseFloat(searchParams.get('swLng') || '');
-    const neLat = parseFloat(searchParams.get('neLat') || '');
-    const neLng = parseFloat(searchParams.get('neLng') || '');
-    const updateData = async () => {
-      console.log(searchParams)
-    const t = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng)
-    if (t) {
-      setLocations(t.rows );
-    }
-  } 
-  if (swLat && swLng && neLat && neLng) {
-  updateData()
-  }
-}, [searchParams]);
 
   // use affect to reload when the coord params change 
     
@@ -103,21 +88,8 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
   }, []); // Add locationData as a dependency
 
-  // add markers seperate 
-  useEffect(() => {  
-    if (map) {
-      console.log(map)
-      addMarkers(map);
 
-      map.on('moveend', () => fetchEstatesInViewport(map)) ;
 
-      return () => {
-        // Clean up event listeners
-        map.off('moveend',  () => fetchEstatesInViewport(map));
-      };
-  
-    }
-  }, [Locations]);
   
 
   const addMarkers = (map: mapboxgl.Map) => {
@@ -137,6 +109,23 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       setMarkers(newMarkers);
   }
   
+  // add markers seperate 
+  useEffect(() => {  
+    if (map) {
+      console.log(map)
+      addMarkers(map);
+
+      map.on('moveend', () => fetchEstatesInViewport(map)) ;
+
+      return () => {
+        // Clean up event listeners
+        map.off('moveend',  () => fetchEstatesInViewport(map));
+      };
+  
+    }
+  }, [Locations]);
+
+
   const fetchEstatesInViewport = useDebouncedCallback(( map : mapboxgl.Map ) => {
 
     const bounds = map.getBounds();
@@ -161,11 +150,24 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     params.set('centerLat', centerLat.toFixed(6));
     params.set('centerLng', centerLng.toFixed(6));
     params.set('zoom', zoom.toFixed(2));
-      
-    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
-    setTest(test + 1)
+    history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+
+    const swLat = parseFloat(sw.lat.toFixed(6));
+    const swLng = parseFloat(sw.lng.toFixed(6));
+    const neLat = parseFloat(ne.lat.toFixed(6));
+    const neLng = parseFloat(ne.lng.toFixed(6));
 
 
+    const updateData = async () => {
+    const t = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng)
+    console.log(t)
+    if (t) {
+      setLocations(t.rows );
+    }
+  } 
+  if (swLat && swLng && neLat && neLng) {
+  updateData()
+  }
 
  }, 400);
 

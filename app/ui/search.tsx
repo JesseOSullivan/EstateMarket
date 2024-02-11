@@ -38,7 +38,6 @@ export default function Search({ placeholder }: SearchProps) {
   const toggleFilterVisibility = () => setIsFilterVisible(!isFilterVisible);
   
   useEffect(() => {
-    
     const query = searchParams.get('query');
     if (query) {
       setSelectedOptions(query.split(','));
@@ -53,6 +52,7 @@ export default function Search({ placeholder }: SearchProps) {
     } else {
       params.delete('query');
     }
+
     router.replace(`${pathname}?${params.toString()}`);
   };
 
