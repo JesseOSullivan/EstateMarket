@@ -25,7 +25,6 @@ const CustomPopup: React.FC<PopupProps> = ({
   bathrooms,
   parking,
 }) => (
-  <Card sx={{ width: 500}}>
     <Grid container spacing={2}>
       {/* Image Section */}
       <Grid item xs={6}>
@@ -54,7 +53,6 @@ const CustomPopup: React.FC<PopupProps> = ({
         </CardContent>
       </Grid>
     </Grid>
-  </Card>
 );
 
 export default CustomPopup;

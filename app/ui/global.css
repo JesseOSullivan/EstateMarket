@@ -19,3 +19,14 @@ input[type='number']::-webkit-outer-spin-button {
 input {
   --tw-ring-shadow: 0 0 #000 !important;
 }
+.mapboxgl-popup-close-button
+{
+  display: none;
+}
+.mapboxgl-popup-content {
+  min-width: 600px;
+  max-height: 400px;
+}
+.mapboxgl-popup, .mapboxgl-popup-anchor-bottom{
+  max-width: 600px !important;
+}
