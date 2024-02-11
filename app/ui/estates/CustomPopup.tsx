@@ -25,7 +25,7 @@ const CustomPopup: React.FC<PopupProps> = ({
   bathrooms,
   parking,
 }) => (
-    <Grid container spacing={2}>
+    <Grid container >
       {/* Image Section */}
       <Grid item xs={6}>
         <img src={imageSrc} alt="Property" style={{ width: '100%', height: 'auto' }} />
