@@ -30,21 +30,24 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
   const params = new URLSearchParams(window.location.search);
   const [map, setMap ] = useState<mapboxgl.Map>()
-
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const swLat = parseFloat(params.get('swLat') || '');
-    const swLng = parseFloat(params.get('swLng') || '');
-    const neLat = parseFloat(params.get('neLat') || '');
-    const neLng = parseFloat(params.get('neLng') || '');
+    const swLat = parseFloat(searchParams.get('swLat') || '');
+    const swLng = parseFloat(searchParams.get('swLng') || '');
+    const neLat = parseFloat(searchParams.get('neLat') || '');
+    const neLng = parseFloat(searchParams.get('neLng') || '');
     const updateData = async () => {
+      console.log(searchParams)
     const t = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng)
     if (t) {
       setLocations(t.rows );
     }
   } 
+  if (swLat && swLng && neLat && neLng) {
   updateData()
-}, [test]);
+  }
+}, [searchParams]);
 
   // use affect to reload when the coord params change 
     
@@ -85,22 +88,15 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
         style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
         center: locationData[0] ? [locationData[0].longitude, locationData[0].latitude] : [145.807925, 17.146474], // Coordinates of Cairns: [longitude, latitude]
         zoom: 10, // Initial map zoom
-        
       });
       setMap(map)
-
+      
     }
-    
-        // console log map zoom 
-        
       map?.addControl(new mapboxgl.NavigationControl());
-
       if (Locations.length > 0) {
-
       // Ensure map is fully loaded before adding markers and popups
       map?.on('load', () => {
         addMarkers(map);
-
       });
     }
 
@@ -110,6 +106,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   // add markers seperate 
   useEffect(() => {  
     if (map) {
+      console.log(map)
       addMarkers(map);
 
       map.on('moveend', () => fetchEstatesInViewport(map)) ;

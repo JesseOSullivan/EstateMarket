@@ -107,7 +107,7 @@ export async function deleteInvoice(id: string) {
     locationCache.forEach((value, key) => {
       if (isWithinCachedBox({swLat, swLng, neLat, neLng}, value.box)) {
         console.log(`Cache hit for box: ${key}`);
-        cacheHit = true;
+        cacheHit = false;
         cachedResult = value.data;
         // Early exit from loop if a cache hit is found
         return;
