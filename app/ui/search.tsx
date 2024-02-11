@@ -13,7 +13,7 @@ import Box from '@mui/material/Box'; // Import Box from MUI for layout purposes
 import { Filter } from './Filter';
 import { useSpring, animated } from '@react-spring/web';
 import { set } from 'zod';
-import { fetchSearchLocation } from '@/app/lib/actions';
+import { fetchSearchTerms } from '@/app/lib/actions';
 import { useDebouncedCallback } from 'use-debounce';
 
 type SearchProps = {
@@ -23,7 +23,7 @@ type SearchProps = {
 
 
 // Define the Search component with TypeScript
-export default function Search({ placeholder }: SearchProps, {searchOptionsProps }: {searchOptionsProps: string[]}) {
+export default function Search({ placeholder }: SearchProps ) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -32,27 +32,17 @@ export default function Search({ placeholder }: SearchProps, {searchOptionsProps
   const closeFilter = () => setIsFilterVisible(false);
   
   const [inputValue, setInputValue] = useState('');
-  const [searchOptions, setSearchOptions] = useState<string[]>([]);
   const [options, setOptions] = useState<string[]>([]);
 
   const debounceFetch = useDebouncedCallback(async (value: string) => {
-    const searchTerms = value.split(',').map(term => term.trim()).filter(term => term.length > 0);
-    if (searchTerms.length > 0) {
-      const locationData = await fetchSearchLocation(searchTerms) ?? [];
-      // Assuming fetchSearchLocation returns an array of options or similar
-      const options = locationData.map(item => ({
-        estatename: item.estatename,
-        developername: item.developername,
-        citycouncil: item.citycouncil,
-        growthregion: item.growthregion
-      })); 
-  
-      setOptions(options.map(item => `${item.estatename} - ${item.growthregion} - ${item.citycouncil} - ${item.developername}`));
-      console.log("locationData")
-      console.log(options)
+    if (value) {
+      const locationData = await fetchSearchTerms(value) ;
+      
+      const formattedOptions = locationData.map((location: any) => location.result); // Assuming 'result' is the property you want to display
+      setOptions(formattedOptions);
   
     } else {
-      setOptions([]);
+      //setOptions([]);
     }
   }, 1000);
   
@@ -60,7 +50,6 @@ export default function Search({ placeholder }: SearchProps, {searchOptionsProps
     event: SyntheticEvent, 
     newInputValue: string
   ) => {
-    setInputValue(newInputValue);
     debounceFetch(newInputValue);
   };
 
@@ -79,13 +68,23 @@ export default function Search({ placeholder }: SearchProps, {searchOptionsProps
 
   const handleSearchBarClick = () => {
     // Reset selected options to an empty array
-    setSelectedOptions([]);
+
+    // if map area is in selected options, remove it
+    if (selectedOptions.includes("Map Area")) {
+      const newSelectedOptions = selectedOptions.filter(option => option !== "Map Area");
+      setSelectedOptions(newSelectedOptions);
+      executeSearch(newSelectedOptions);
+    }
   };
 
   useEffect(() => {
     const query = searchParams.get('query');
     if (searchParams.get('swLat')) {
       setSelectedOptions(["Map Area"]);
+    }
+    // if map area is in selected options, remove it
+    if (query) {
+      setSelectedOptions(query.split(','));
     }
 
     if (query) {
@@ -136,7 +135,7 @@ export default function Search({ placeholder }: SearchProps, {searchOptionsProps
         freeSolo
         disableClearable
         options={options}
-        value={searchOptions}
+        value={selectedOptions}
         onChange={handleAutocompleteChange}
         renderTags={renderTags}
         classes={{
@@ -204,18 +203,3 @@ export default function Search({ placeholder }: SearchProps, {searchOptionsProps
   );
 }
 
-
-const ssearchOptions: string[] = [
-  "Option 1",
-  "Option 2",
-  "Option 3",
-  "Option 4",
-  "Option 5",
-  "Option 6",
-  "Option 7",
-  "Option 8",
-  "Option 9",
-  "Option 10",
-  "Option 11",
-  "Option 12",
-]
