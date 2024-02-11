@@ -1,4 +1,5 @@
 'use server';
+import { createClient } from '@vercel/postgres';
 
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
@@ -78,6 +79,61 @@ export async function deleteInvoice(id: string) {
     }
   }
 
+
+
+  export async function fetchSearchLocation(searchTerms: string[]) {
+    try {
+        console.log('Fetching search location data...');
+        if (searchTerms && searchTerms.length > 0) {
+            console.log(searchTerms);
+  
+            const client = createClient(); // Create a new client
+            await client.connect(); // Connect to the database
+  
+            try {
+                // Construct the WHERE clause dynamically based on the search terms
+                const whereClause = searchTerms.map((term, index) => `e.estatename ILIKE '%' || $${index + 1} || '%' OR
+                d.name ILIKE '%' || $${index + 1} || '%' OR
+                l.citycouncil ILIKE '%' || $${index + 1} || '%' OR
+                l.growthregion ILIKE '%' || $${index + 1} || '%' OR
+                a.suburb ILIKE '%' || $${index + 1} || '%' OR
+                a.state ILIKE '%' || $${index + 1} || '%' OR
+                a.postcode ILIKE '%' || $${index + 1} || '%'`).join(' OR ');
+  
+                // Construct separate queries for each column to fetch distinct values
+                const queries = [
+                    `SELECT DISTINCT e.estatename AS result FROM estate e WHERE ${whereClause}`,
+                    `SELECT DISTINCT d.name AS result FROM developer d WHERE ${whereClause}`,
+                    `SELECT DISTINCT l.citycouncil AS result FROM location l WHERE ${whereClause}`,
+                    `SELECT DISTINCT l.growthregion AS result FROM location l WHERE ${whereClause}`,
+                    `SELECT DISTINCT a.suburb AS result FROM address a WHERE ${whereClause}`,
+                    `SELECT DISTINCT a.state AS result FROM address a WHERE ${whereClause}`,
+                    `SELECT DISTINCT a.postcode AS result FROM address a WHERE ${whereClause}`
+                ];
+  
+                // Execute each query and concatenate the results
+                let results: string[] = [];
+                for (const query of queries) {
+                    const result = await client.query(query, searchTerms);
+                    results = results.concat(result.rows.map(row => row.result));
+                }
+  
+                return results;
+            } finally {
+                await client.end(); // Disconnect from the database
+            }
+        } else {
+            // If no search terms provided, return empty array or handle as appropriate
+            return [];
+        }
+    } catch (error) {
+        console.error('Error fetching search location data:', error);
+        throw error;
+    }
+}
+  
+
+  
   const locationCache = new Map();
 
   function generateCacheKey(swLat: number, swLng: number, neLat: number, neLng: number, precision = 1) {

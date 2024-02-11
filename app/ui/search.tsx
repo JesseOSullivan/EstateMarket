@@ -1,7 +1,7 @@
 'use client';
 
 // Import necessary modules and types
-import React, { useState, useEffect } from 'react';
+import React, { SyntheticEvent, useState, useEffect, useCallback } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
@@ -13,6 +13,8 @@ import Box from '@mui/material/Box'; // Import Box from MUI for layout purposes
 import { Filter } from './Filter';
 import { useSpring, animated } from '@react-spring/web';
 import { set } from 'zod';
+import { fetchSearchLocation } from '@/app/lib/actions';
+import { useDebouncedCallback } from 'use-debounce';
 
 type SearchProps = {
   placeholder: string;
@@ -28,7 +30,44 @@ export default function Search({ placeholder }: SearchProps, {searchOptionsProps
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const closeFilter = () => setIsFilterVisible(false);
+  
+  const [inputValue, setInputValue] = useState('');
+  const [searchOptions, setSearchOptions] = useState<string[]>([]);
+  const [options, setOptions] = useState<string[]>([]);
 
+  const debounceFetch = useDebouncedCallback(async (value: string) => {
+    const searchTerms = value.split(',').map(term => term.trim()).filter(term => term.length > 0);
+    if (searchTerms.length > 0) {
+      const locationData = await fetchSearchLocation(searchTerms) ?? [];
+      // Assuming fetchSearchLocation returns an array of options or similar
+      const options = locationData.map(item => ({
+        estatename: item.estatename,
+        developername: item.developername,
+        citycouncil: item.citycouncil,
+        growthregion: item.growthregion
+      })); 
+  
+      setOptions(options.map(item => `${item.estatename} - ${item.growthregion} - ${item.citycouncil} - ${item.developername}`));
+      console.log("locationData")
+      console.log(options)
+  
+    } else {
+      setOptions([]);
+    }
+  }, 1000);
+  
+  const handleInputChange = (
+    event: SyntheticEvent, 
+    newInputValue: string
+  ) => {
+    setInputValue(newInputValue);
+    debounceFetch(newInputValue);
+  };
+
+
+
+
+  
   const filterCategories = ["Category 1", "Category 2", "Category 3"]; // Example categories
   const applyFilters = (selectedCategories: string[]) => {
     console.log("Applying filters: ", selectedCategories);
@@ -90,13 +129,14 @@ export default function Search({ placeholder }: SearchProps, {searchOptionsProps
     <Box className="relative flex   items-center justify-center w-full md:max-w-3xl bg-white shadow-lg"
       style={{ borderRadius: '30px' }}>
       <Autocomplete
+      onInputChange={handleInputChange}
         multiple
-        id="field1"
+        id="async-autocomplete"
         autoComplete={false}
         freeSolo
         disableClearable
-        options={searchOptions}
-        value={selectedOptions}
+        options={options}
+        value={searchOptions}
         onChange={handleAutocompleteChange}
         renderTags={renderTags}
         classes={{
@@ -165,7 +205,7 @@ export default function Search({ placeholder }: SearchProps, {searchOptionsProps
 }
 
 
-const searchOptions: string[] = [
+const ssearchOptions: string[] = [
   "Option 1",
   "Option 2",
   "Option 3",
