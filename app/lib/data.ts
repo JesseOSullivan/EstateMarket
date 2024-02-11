@@ -60,10 +60,11 @@ export async function fetchLocationByCoord(swLat: number, swLng: number, neLat: 
 }
 
 
-export async function fetchSearchLocation(searchTerm: string) {
+export async function fetchSearchLocation(searchTerm: string[]) {
   try {
     console.log('Fetching search location data...');
     if (searchTerm) {
+      console.log(searchTerm)
       const result = await sql<SearchResult>`
       SELECT
         e.estateid,

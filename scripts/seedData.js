@@ -236,7 +236,7 @@ async function main() {
         data.push(row);
       })
       .on('end', async () => {
-        await deleteAllData()
+        //await deleteAllData()
         // Insert data into developer table
         await insertDevelopers(client, data);
         // Insert data into address table

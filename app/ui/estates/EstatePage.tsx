@@ -39,7 +39,9 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     const neLng = parseFloat(params.get('neLng') || '');
     const updateData = async () => {
     const t = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng)
-    setLocations(t.rows );
+    if (t) {
+      setLocations(t.rows );
+    }
   } 
   updateData()
   

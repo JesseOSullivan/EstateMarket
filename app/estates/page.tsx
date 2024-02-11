@@ -1,13 +1,6 @@
 import { fetchLocation } from '@/app/lib/data';
 import EstatesPage from '@/app/ui/estates/EstatePage';
 import { fetchLocationByCoord, fetchSearchLocation } from '@/app/lib/data';
-import Search from '@/app/ui/search';
-import Table from '@/app/ui/invoices/table';
-import { CreateInvoice } from '@/app/ui/invoices/buttons';
-import { lusitana } from '@/app/ui/fonts';
-import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
-import { Suspense } from 'react';
-import { Metadata } from 'next';
 import { SearchResult } from '../lib/definitions';
 
 
@@ -29,7 +22,7 @@ export default async function Page({
   if (searchParams?.query) {
     // Handle search by query
     const searchTerms = searchParams?.query.split(',');
-    locationData = await fetchSearchLocation(searchParams?.query) ?? [];
+    locationData = await fetchSearchLocation(searchTerms) ?? [];
     //const searchDataArray = await Promise.all(searchDataPromises);
     //locationData = searchDataArray.flat();
   } else if (searchParams?.swLat &&	 searchParams?.neLat &&	 searchParams?.swLng && searchParams?.neLng) {
