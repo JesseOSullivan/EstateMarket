@@ -31,11 +31,11 @@ const CustomPopup: React.FC<PopupProps> = ({
         <img src={imageSrc} alt="Property" style={{ width: '100%', height: 'auto' }} />
       </Grid>
       {/* Details Section */}
-      <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', p: 2 }}>
+      <Grid item xs={6} sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', }}>
         <CardContent>
           {logoSrc && (
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-              <img src={logoSrc} alt="Agency Logo" style={{ width: 80, height: 'auto' }} />
+              {<img src={logoSrc} alt="Agency Logo" style={{ width: 80, height: 'auto' }} />}
             </div>
           )}
           <Typography gutterBottom variant="h5" component="div">
