@@ -14,7 +14,8 @@ import { fetchLocationByCoordAction } from '@/app/lib/actions';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import CustomPopup from './CustomPopup';
 import { createRoot } from 'react-dom/client'; // Import createRoot from React 18
-
+import { TotalDevelopments } from './TotalDevelopments';
+import { set } from 'zod';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
 
@@ -30,17 +31,39 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const params = new URLSearchParams(searchParams.toString())
+  const [mapMoved, setMapMoved] = useState(false);
+
+  const totalDevelopments = Locations.length;
 
 
-  // use affect to reload when the coord params change 
 
-  useEffect(() => {
-    console.log("params.toString()")
-    console.log(params.toString())
+// useEffect to handle map view adjustment on search
+useEffect(() => {
 
-    console.log(Locations)
+  setMapMoved(true);
+  if (searchParams.has('query')) {
+  // Check if Locations array is not empty
+  if (Locations.length > 0) {
+      // Initialize the bounds
+      const bounds = new mapboxgl.LngLatBounds();
+
+      // Iterate over the coordinates and extend the bounds
+      Locations.forEach(location => {
+          bounds.extend([location.longitude, location.latitude]);
+      });
+      if (map) {
+        
+      // Center the map on the center of the bounding box and fit the bounds
+      map.fitBounds(bounds, {
+          padding: 50, // Adjust padding as needed
+      });
+      //setMap(map);
+      
+      // Add markers once the map is loaded
+    }
   }
-    , [Locations]);
+}
+}, [Locations]); // Re-run when Locations array changes
 
 
 
@@ -113,10 +136,10 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
           logoSrc='https://via.placeholder.com/50' // Use actual logo URL
         />
       );
-  
+
       const popup = new mapboxgl.Popup({ offset: 25 }).setDOMContent(popupElement)
 
-        // Create a new HTML element to use as a custom marker
+      // Create a new HTML element to use as a custom marker
       const el = document.createElement('div');
       // Apply Tailwind CSS classes for styling the custom marker
       el.className = 'w-6 h-6 shadow border-4   border-white rounded-full bg-primary-main';
@@ -128,36 +151,36 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
         el.classList.add('w-7');
         el.classList.add('h-7');
 
-    });
+      });
 
-    el.addEventListener('mouseleave', () => {
-      if (!popup.isOpen()) { // Only remove hover effect if popup is closed
+      el.addEventListener('mouseleave', () => {
+        if (!popup.isOpen()) { // Only remove hover effect if popup is closed
           el.classList.remove('bg-blue-800');
           el.classList.remove('w-7');
           el.classList.remove('h-7');
           el.classList.add('bg-primary-main');
-      }
-  });
-  
-      
+        }
+      });
+
+
       const marker = new mapboxgl.Marker(el) // Consider using 'center' as the anchor
         .setLngLat([location.longitude, location.latitude])
         .setPopup(popup)
         .addTo(map);
-        
-        popup.on('open', () => {
-          el.classList.add('bg-blue-800');
-          el.classList.add('w-7');
-          el.classList.add('h-7');
+
+      popup.on('open', () => {
+        el.classList.add('bg-blue-800');
+        el.classList.add('w-7');
+        el.classList.add('h-7');
       });
 
       popup.on('close', () => {
 
-          el.classList.remove('bg-blue-800');
-          el.classList.remove('w-7');
-          el.classList.remove('h-7');
-          el.classList.add('bg-primary-main');
-        
+        el.classList.remove('bg-blue-800');
+        el.classList.remove('w-7');
+        el.classList.remove('h-7');
+        el.classList.add('bg-primary-main');
+
       });
 
       return marker;
@@ -172,7 +195,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
     if (map) {
       addMarkers(map);
-
+      
       map.on('moveend', () => fetchEstatesInViewport(map));
 
       return () => {
@@ -185,7 +208,11 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
   const fetchEstatesInViewport = useDebouncedCallback((map: mapboxgl.Map) => {
-
+    if (mapMoved) {
+      setMapMoved(false); // Reset flag
+      return; // Ignore this invocation
+    }
+  
     const bounds = map.getBounds();
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
@@ -264,13 +291,17 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
   return (
     <Box sx={{ position: 'relative', height: '100vh' }}>
+
       {isMobile ? (
         <>
 
           {view === 'map' ? (
             <Grid container>
-              <Grid item xs={12} md={8} lg={8} style={{ height: '100vh' }}>
-                <div id="map" style={{ width: '100%', height: '100%' }}></div>
+              <Grid item xs={12} md={8} lg={8} style={{ position: 'relative' }}>
+                <div id="map" style={{ width: '100%', height: '100%' }}>
+                  {/* New: TotalDevelopments component */}
+                  <TotalDevelopments total={totalDevelopments} />
+                </div>
               </Grid>
             </Grid>
           ) : (
@@ -311,9 +342,12 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       ) : (
         // Non-mobile view
         <Grid container >
-          <Grid item xs={12} sm={8} md={8} lg={8} style={{ height: '100vh' }}>
-            <div id="map" style={{ width: '100%', height: '100%' }}></div>
-          </Grid>
+              <Grid item xs={12} md={8} lg={8} style={{ position: 'relative' }}>
+                <div id="map" style={{ width: '100%', height: '100%' }}>
+                  {/* New: TotalDevelopments component */}
+                  <TotalDevelopments total={totalDevelopments} />
+                </div>
+              </Grid>
           <Grid item xs={12} sm={4} md={4} lg={4} style={{ overflowY: 'auto', height: '100vh', padding: '20px' }}>
             <Search placeholder="Search Estates" />
             <Grid className='pt-10' container spacing={2}>

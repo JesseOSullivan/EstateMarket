@@ -136,19 +136,21 @@ export default function Search({ placeholder }: SearchProps) {
     if (existingSearches) {
       recentSearches = JSON.parse(existingSearches);
     }
+    const filteredValues = values.filter(value => value !== "Map Area");
 
     // Concatenate new search values with existing recent searches
     recentSearches = recentSearches.concat(values);
-
+  
     // Filter out duplicates from recent searches
     recentSearches = recentSearches.filter((value, index, self) => self.indexOf(value) === index);
-
+  
     // Limit recent searches to a certain number, for example, 10
     recentSearches = recentSearches.slice(0, 10);
-
+  
     // Save updated recent searches to localStorage
+    console.log('adding ' + recentSearches);
     localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-
+  
     const params = new URLSearchParams(searchParams);
     if (values.length > 0) {
       params.set('query', values.join(','));
@@ -216,7 +218,7 @@ export default function Search({ placeholder }: SearchProps) {
         }
         disableClearable
         options={[...options]}
-        
+
         renderOption={(props: any, option: string) => {
           if (option === "buttons") {
             return (
