@@ -1,7 +1,7 @@
 'use client';
 
 // Import necessary modules and types
-import React, { SyntheticEvent, useState, useEffect, useCallback } from 'react';
+import React, { SyntheticEvent, useState, useEffect } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
@@ -12,9 +12,10 @@ import TuneIcon from '@mui/icons-material/Tune';// Define the props type for the
 import Box from '@mui/material/Box'; // Import Box from MUI for layout purposes
 import { Filter } from './Filter';
 import { useSpring, animated } from '@react-spring/web';
-import { set } from 'zod';
 import { fetchSearchTerms } from '@/app/lib/actions';
 import { useDebouncedCallback } from 'use-debounce';
+import CircularProgress from '@mui/material/CircularProgress'; // Import MUI CircularProgress for loading indicator
+import { Typography } from '@mui/material';
 
 type SearchProps = {
   placeholder: string;
@@ -33,26 +34,29 @@ export default function Search({ placeholder }: SearchProps ) {
   
   const [inputValue, setInputValue] = useState('');
   const [options, setOptions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false); // New loading state
 
   const debounceFetch = useDebouncedCallback(async (value: string) => {
+    setLoading(true); // Set loading to true before fetching data
     if (value) {
-      const locationData = await fetchSearchTerms(value) ;
-      
-      const formattedOptions = locationData.map((location: any) => location.result); // Assuming 'result' is the property you want to display
+      const locationData = await fetchSearchTerms(value);
+      const formattedOptions = locationData.map((location: any) => location.result);
       setOptions(formattedOptions);
-  
+      setLoading(false); // Set loading to false after fetching data
     } else {
-      //setOptions([]);
+      setOptions([]);
+      setLoading(false); // Ensure loading is false if there's no value
     }
-  }, 1000);
+  }, 500);
   
   const handleInputChange = (
     event: SyntheticEvent, 
     newInputValue: string
   ) => {
+    setInputValue(newInputValue); // Update the inputValue state
     debounceFetch(newInputValue);
   };
-
+  
 
 
 
@@ -133,6 +137,18 @@ export default function Search({ placeholder }: SearchProps ) {
         id="async-autocomplete"
         autoComplete={false}
         freeSolo
+        loading={loading}
+        loadingText={<>
+        
+        <Box display="flex" alignItems="center">
+  <CircularProgress className='mt-1 mb-1' size={30} thickness={5} style={{ color:"#007bff",  fontSize: '30px'  }} /> 
+  <Typography  style={{ marginLeft: '15px', color: 'black' }}>
+  Searching: <strong >{inputValue}</strong>
+</Typography>
+</Box>
+
+        </>
+      }
         disableClearable
         options={options}
         value={selectedOptions}
