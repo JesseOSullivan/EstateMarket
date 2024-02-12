@@ -25,7 +25,9 @@ input {
 }
 .mapboxgl-popup-content {
   min-width: 600px !important;
+  max-height: 300px !important;
   
+  padding: 0 !important;
 }
 .mapboxgl-popup, .mapboxgl-popup-anchor-bottom{
   max-width: 600px !important;

@@ -24,8 +24,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   const theme = useTheme();
   const [isMobile, setIsMobile] = useState(false);
   const [view, setView] = useState<'map' | 'list'>('map'); // New state for managing view
-  //const params = useSearchParams();
-  const [test, setTest] = useState(1)
   const [markers, setMarkers] = useState<mapboxgl.Marker[]>([]);
   const pathname = usePathname();
   const [map, setMap] = useState<mapboxgl.Map>()
@@ -96,8 +94,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
   const addMarkers = (map: mapboxgl.Map) => {
-    
-
+    // Remove existing markers
     markers.forEach(marker => marker.remove());
 
     const newMarkers = Locations.map((location) => {
@@ -124,25 +121,44 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       // Apply Tailwind CSS classes for styling the custom marker
       el.className = 'w-7 h-7 shadow border-4   border-white rounded-full bg-primary-main';
 
+
       el.addEventListener('mouseenter', () => {
         el.classList.remove('bg-primary-main');
-        el.classList.add('bg-blue-700');
+        el.classList.add('bg-blue-800');
         el.classList.add('w-8');
         el.classList.add('h-8');
 
-      });
+    });
 
-      el.addEventListener('mouseleave', () => {
-        el.classList.remove('bg-blue-700');
-        el.classList.remove('w-8');
-        el.classList.remove('h-8');
-        el.classList.add('bg-primary-main');
-      });
-
+    el.addEventListener('mouseleave', () => {
+      if (!popup.isOpen()) { // Only remove hover effect if popup is closed
+          el.classList.remove('bg-blue-800');
+          el.classList.remove('w-8');
+          el.classList.remove('h-8');
+          el.classList.add('bg-primary-main');
+      }
+  });
+  
+      
       const marker = new mapboxgl.Marker(el) // Consider using 'center' as the anchor
         .setLngLat([location.longitude, location.latitude])
         .setPopup(popup)
         .addTo(map);
+        
+        popup.on('open', () => {
+          el.classList.add('bg-blue-800');
+          el.classList.add('w-8');
+          el.classList.add('h-8');
+      });
+
+      popup.on('close', () => {
+
+          el.classList.remove('bg-blue-800');
+          el.classList.remove('w-8');
+          el.classList.remove('h-8');
+          el.classList.add('bg-primary-main');
+        
+      });
 
       return marker;
     });
