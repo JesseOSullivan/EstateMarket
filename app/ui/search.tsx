@@ -16,6 +16,7 @@ import { fetchSearchTerms } from '@/app/lib/actions';
 import { useDebouncedCallback } from 'use-debounce';
 import CircularProgress from '@mui/material/CircularProgress'; // Import MUI CircularProgress for loading indicator
 import { Typography } from '@mui/material';
+import { set } from 'zod';
 
 type SearchProps = {
   placeholder: string;
@@ -36,6 +37,7 @@ export default function Search({ placeholder }: SearchProps ) {
   const [options, setOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); // New loading state
   const [isSearchBarClicked, setIsSearchBarClicked] = useState(false);
+  const [showRecentSearches, setShowRecentSearches] = useState(false); // State to manage recent searches visibility
 
   const debounceFetch = useDebouncedCallback(async (value: string) => {
     setLoading(true); // Set loading to true before fetching data
@@ -48,23 +50,43 @@ export default function Search({ placeholder }: SearchProps ) {
       setOptions([]);
       setLoading(false); // Ensure loading is false if there's no value
     }
-  }, 500);
+  }, 600);
   
   const handleInputChange = (
     event: SyntheticEvent, 
     newInputValue: string
   ) => {
-    setInputValue(newInputValue); // Update the inputValue state
+    
+    // Update the inputValue state
+    setInputValue(newInputValue); 
     debounceFetch(newInputValue);
+
+    // Reset isSearchBarClicked state
+    setIsSearchBarClicked(false);
   };
   
   useEffect(() => {
-    const recentSearches = localStorage.getItem('recentSearches');
-    if (recentSearches) {
-      setSelectedOptions(JSON.parse(recentSearches));
+    if (loading )
+      {
+        console.log('loading');
+        setOptions([]);
+      }
+    
+    // If search bar is clicked and there's no typing or loading
+    if (isSearchBarClicked ) {
+      console.log('search bar clicked');
+      const recentSearches = localStorage.getItem('recentSearches');
+      if (recentSearches) {
+        const recentSearchesArray = JSON.parse(recentSearches);
+        // Set recent searches as options only if inputValue is empty
+        if (!inputValue) {
+          setOptions(recentSearchesArray);
+        }
+        setLoading(false); // Set loading to false after fetching recent searches
+      }
     }
-  }, []);
-
+  }, [isSearchBarClicked, loading]);
+  
 
 
   
@@ -79,15 +101,17 @@ export default function Search({ placeholder }: SearchProps ) {
 
   const handleSearchBarClick = () => {
     // Reset selected options to an empty array
-
+    
     // if map area is in selected options, remove it
     if (selectedOptions.includes("Map Area")) {
+      console.log('map area');
       const newSelectedOptions = selectedOptions.filter(option => option !== "Map Area");
       setSelectedOptions(newSelectedOptions);
-      
       executeSearch(newSelectedOptions);
-      
     }
+    console.log('search bar clicked');
+    // Update state to indicate that search bar is clicked
+    setIsSearchBarClicked(true);
   };
 
   useEffect(() => {
@@ -137,6 +161,7 @@ export default function Search({ placeholder }: SearchProps ) {
   const handleAutocompleteChange = (event: React.SyntheticEvent, newValues: string[]) => {
     setSelectedOptions(newValues);
     executeSearch(newValues);
+    setIsSearchBarClicked(false);
   };
 
   const handleSearchButtonClick = () => {
