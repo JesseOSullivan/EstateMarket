@@ -32,40 +32,18 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   const router = useRouter();
   const params = new URLSearchParams(searchParams.toString())
   const [mapMoved, setMapMoved] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string | null>(null);
 
   const totalDevelopments = Locations.length;
 
 
 
-// useEffect to handle map view adjustment on search
-useEffect(() => {
 
-  setMapMoved(true);
-  if (searchParams.has('query')) {
-  // Check if Locations array is not empty
-  if (Locations.length > 0) {
-      // Initialize the bounds
-      const bounds = new mapboxgl.LngLatBounds();
-
-      // Iterate over the coordinates and extend the bounds
-      Locations.forEach(location => {
-          bounds.extend([location.longitude, location.latitude]);
-      });
-      if (map) {
-        
-      // Center the map on the center of the bounding box and fit the bounds
-      map.fitBounds(bounds, {
-          padding: 50, // Adjust padding as needed
-      });
-      //setMap(map);
-      
-      // Add markers once the map is loaded
-    }
-  }
-}
-}, [Locations]); // Re-run when Locations array changes
-
-
+  useEffect(() => {
+    const query = searchParams.get('query');
+    setSearchQuery(query); // Update the state with the current query
+  }, [searchParams]);
+  
 
   useEffect(() => {
     setLocations(locationData);
@@ -208,11 +186,13 @@ useEffect(() => {
 
 
   const fetchEstatesInViewport = useDebouncedCallback((map: mapboxgl.Map) => {
+
     if (mapMoved) {
+      // Indicate that the map has been moved by the user
       setMapMoved(false); // Reset flag
-      return; // Ignore this invocation
+      return;
     }
-  
+
     const bounds = map.getBounds();
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
@@ -258,8 +238,38 @@ useEffect(() => {
 
     }
 
-
+ 
+  
   }, 400);
+
+
+  // useEffect to handle map view adjustment on search
+  useEffect(() => {
+    setMapMoved(true);
+    if (searchQuery && Locations.length > 0) {
+      // Indicate that the next map move is programmatic and not user-initiated
+  
+      // Initialize the bounds
+      const bounds = new mapboxgl.LngLatBounds();
+  
+      // Extend the bounds to include all search result locations
+      Locations.forEach(location => {
+        bounds.extend([location.longitude, location.latitude]);
+      });
+  
+      if (map) {
+        // Center the map and fit the bounds
+        map.fitBounds(bounds, {
+          padding: 50, // Adjust padding as needed
+          maxZoom: 10, // Optionally set a maximum zoom level
+        });
+  
+        // Reset mapMoved after a short delay to allow for user movements again
+        //setTimeout(() => setMapMoved(false), 1000);
+      }
+    }
+  }, [searchQuery]); // Depend on searchQuery, Locations, and map
+  
 
   useEffect(() => {
     // Check the viewport width when the component mounts

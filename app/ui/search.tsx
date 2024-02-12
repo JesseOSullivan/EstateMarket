@@ -188,7 +188,13 @@ export default function Search({ placeholder }: SearchProps) {
       <Chip key={index} label={option} {...getTagProps({ index })} />
     ));
 
-
+    const handleClearSearchHistory = () => {
+      // Clear recent searches from local storage
+      localStorage.removeItem('recentSearches');
+      // Clear options in state
+      setOptions([]);
+    };
+    
 
   
   return (
@@ -240,7 +246,7 @@ export default function Search({ placeholder }: SearchProps) {
                     cursor: 'pointer',
                     textDecoration: 'underline',
                   }}
-                  onClick={() => { console.log("test") }} // assuming `handleClear` is the function to trigger
+                  onClick={handleClearSearchHistory} // assuming `handleClear` is the function to trigger
                 >
                   Clear
                 </button>
