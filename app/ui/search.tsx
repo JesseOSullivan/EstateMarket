@@ -35,6 +35,7 @@ export default function Search({ placeholder }: SearchProps ) {
   const [inputValue, setInputValue] = useState('');
   const [options, setOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); // New loading state
+  const [isSearchBarClicked, setIsSearchBarClicked] = useState(false);
 
   const debounceFetch = useDebouncedCallback(async (value: string) => {
     setLoading(true); // Set loading to true before fetching data
@@ -57,6 +58,12 @@ export default function Search({ placeholder }: SearchProps ) {
     debounceFetch(newInputValue);
   };
   
+  useEffect(() => {
+    const recentSearches = localStorage.getItem('recentSearches');
+    if (recentSearches) {
+      setSelectedOptions(JSON.parse(recentSearches));
+    }
+  }, []);
 
 
 
@@ -77,7 +84,9 @@ export default function Search({ placeholder }: SearchProps ) {
     if (selectedOptions.includes("Map Area")) {
       const newSelectedOptions = selectedOptions.filter(option => option !== "Map Area");
       setSelectedOptions(newSelectedOptions);
+      
       executeSearch(newSelectedOptions);
+      
     }
   };
 
@@ -97,7 +106,24 @@ export default function Search({ placeholder }: SearchProps ) {
   }, [searchParams]);
 
   const executeSearch = (values: string[]) => {
-    console.log(`Searching... ${values.join(', ')}`);
+    let recentSearches: string[] = [];
+    const existingSearches = localStorage.getItem('recentSearches');
+    if (existingSearches) {
+      recentSearches = JSON.parse(existingSearches);
+    }
+
+    // Concatenate new search values with existing recent searches
+    recentSearches = recentSearches.concat(values);
+
+    // Filter out duplicates from recent searches
+    recentSearches = recentSearches.filter((value, index, self) => self.indexOf(value) === index);
+
+    // Limit recent searches to a certain number, for example, 10
+    recentSearches = recentSearches.slice(0, 10);
+
+    // Save updated recent searches to localStorage
+    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+
     const params = new URLSearchParams(searchParams);
     if (values.length > 0) {
       params.set('query', values.join(','));
