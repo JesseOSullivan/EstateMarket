@@ -15,7 +15,7 @@ import { useSpring, animated } from '@react-spring/web';
 import { fetchSearchTerms } from '@/app/lib/actions';
 import { useDebouncedCallback } from 'use-debounce';
 import CircularProgress from '@mui/material/CircularProgress'; // Import MUI CircularProgress for loading indicator
-import { Typography } from '@mui/material';
+import { Divider, Typography } from '@mui/material';
 import { set } from 'zod';
 
 type SearchProps = {
@@ -25,14 +25,14 @@ type SearchProps = {
 
 
 // Define the Search component with TypeScript
-export default function Search({ placeholder }: SearchProps ) {
+export default function Search({ placeholder }: SearchProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const closeFilter = () => setIsFilterVisible(false);
-  
+
   const [inputValue, setInputValue] = useState('');
   const [options, setOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); // New loading state
@@ -51,45 +51,46 @@ export default function Search({ placeholder }: SearchProps ) {
       setLoading(false); // Ensure loading is false if there's no value
     }
   }, 600);
-  
+
   const handleInputChange = (
-    event: SyntheticEvent, 
+    event: SyntheticEvent,
     newInputValue: string
   ) => {
-    
+
     // Update the inputValue state
-    setInputValue(newInputValue); 
+    setInputValue(newInputValue);
     debounceFetch(newInputValue);
 
     // Reset isSearchBarClicked state
     setIsSearchBarClicked(false);
   };
-  
+
   useEffect(() => {
-    if (loading )
-      {
-        console.log('loading');
-        setOptions([]);
-      }
-    
+    if (loading) {
+      console.log('loading');
+      setOptions([]);
+    }
+
     // If search bar is clicked and there's no typing or loading
-    if (isSearchBarClicked ) {
+    if (isSearchBarClicked) {
       console.log('search bar clicked');
       const recentSearches = localStorage.getItem('recentSearches');
       if (recentSearches) {
         const recentSearchesArray = JSON.parse(recentSearches);
         // Set recent searches as options only if inputValue is empty
         if (!inputValue) {
-          setOptions(recentSearchesArray);
+          // Insert "Recent Searches" at the beginning of the array
+          const updatedOptions = ["buttons", ...recentSearchesArray];
+          setOptions(updatedOptions);
         }
         setLoading(false); // Set loading to false after fetching recent searches
       }
     }
   }, [isSearchBarClicked, loading]);
-  
 
 
-  
+
+
   const filterCategories = ["Category 1", "Category 2", "Category 3"]; // Example categories
   const applyFilters = (selectedCategories: string[]) => {
     console.log("Applying filters: ", selectedCategories);
@@ -101,7 +102,7 @@ export default function Search({ placeholder }: SearchProps ) {
 
   const handleSearchBarClick = () => {
     // Reset selected options to an empty array
-    
+
     // if map area is in selected options, remove it
     if (selectedOptions.includes("Map Area")) {
       console.log('map area');
@@ -161,7 +162,15 @@ export default function Search({ placeholder }: SearchProps ) {
   const handleAutocompleteChange = (event: React.SyntheticEvent, newValues: string[]) => {
     setSelectedOptions(newValues);
     executeSearch(newValues);
+
+    if (newValues.includes("Clear Recent Searches")) {
+      // Clear recent searches
+      localStorage.removeItem('recentSearches');
+      setOptions([]);
+    }
+
     setIsSearchBarClicked(false);
+
   };
 
   const handleSearchButtonClick = () => {
@@ -179,43 +188,86 @@ export default function Search({ placeholder }: SearchProps ) {
 
 
 
+  
   return (
     <Box className="relative flex   items-center justify-center w-full md:max-w-3xl bg-white shadow-lg"
       style={{ borderRadius: '30px' }}>
       <Autocomplete
-      onInputChange={handleInputChange}
+        //ListboxProps={{style:{paddingLeft: '30px'}}}
+        onInputChange={handleInputChange}
         multiple
         id="async-autocomplete"
         autoComplete={false}
         freeSolo
+        disablePortal={true}
+
         loading={loading}
         loadingText={<>
         
-        <Box display="flex" alignItems="center">
-  <CircularProgress className='mt-1 mb-1' size={30} thickness={5} style={{ color:"#007bff",  fontSize: '30px'  }} /> 
-  <Typography  style={{ marginLeft: '15px', color: 'black' }}>
-  Searching: <strong >{inputValue}</strong>
-</Typography>
-</Box>
+
+          <Box display="flex" alignItems="center">
+            <CircularProgress className='mt-1 mb-1' size={30} thickness={5} style={{ color: "#007bff", fontSize: '30px' }} />
+            <Typography style={{ marginLeft: '15px', color: 'black' }}>
+              Searching: <strong >{inputValue}</strong>
+            </Typography>
+          </Box>
 
         </>
-      }
+        }
         disableClearable
-        options={options}
+        options={[...options]}
+        
+        renderOption={(props: any, option: string) => {
+          if (option === "buttons") {
+            return (
+
+              <div>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                style={{ padding: '8px',  borderRadius: '4px' }}
+              >
+                <strong style={{ color: '#007bff', marginRight: '8px', userSelect: 'none' }}>Recent Searches:</strong>
+                <button
+                  style={{
+                    fontStyle: 'italic',
+                    color: '#007bff',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                  }}
+                  onClick={() => { console.log("test") }} // assuming `handleClear` is the function to trigger
+                >
+                  Clear
+                </button>
+              </Box>
+              <Divider />
+            </div>
+                    );
+          }
+          return <div {...props}>{option}</div>;
+        }}
+              
+        getOptionDisabled={(option) => option === "buttons"}
         value={selectedOptions}
+        // Remove the duplicate onChange attribute
         onChange={handleAutocompleteChange}
         renderTags={renderTags}
         classes={{
-          root: 'w-full',
+          root: 'w-full ', // Adding rounded-lg for border radius
           inputRoot: 'input-root bg-transparent',
           input: 'input-input',
           popupIndicator: 'hidden',
           clearIndicator: 'hidden',
+          
         }}
+        
         renderInput={(params) => (
           <Box display="flex" alignItems="center" style={{ borderRadius: '30px', background: '#fff' }}>
             <TextField
-            onMouseDown={handleSearchBarClick}
+              onMouseDown={handleSearchBarClick}
               onKeyDown={(event: React.KeyboardEvent) => {
                 if (event.key === 'Enter') {
                   // Prevent the default action to avoid form submission if this is inside a form
