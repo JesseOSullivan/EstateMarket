@@ -38,7 +38,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
 
-
   useEffect(() => {
     const query = searchParams.get('query');
     setSearchQuery(query); // Update the state with the current query
@@ -49,18 +48,22 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     setLocations(locationData);
   }, [locationData]);
 
-  useEffect(() => {
-    console.log('map is ready')
-  if (map) {
-    console.log('map is true')
+  useEffect (() => {
+    if (map) {
+    map.on('move',   () => {
+      console.log('map is moving')
+      addMarkers(map);
+      console.log('add markers')
+      
+      fetchEstatesInViewport(map)
+      console.log('fetch')
+    }
 
-    addMarkers(map);
-
-    map.on('moveend', () => fetchEstatesInViewport(map));
-
-  }
-}, [map]);
-
+      );
+    } 
+      
+  } , []);
+  
   // only on first load
   useEffect(() => {
 
@@ -257,7 +260,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
   // useEffect to handle map view adjustment on search
   useEffect(() => {
-    setMapMoved(true);
+    //setMapMoved(true);
     if (searchQuery && Locations.length > 0) {
       // Indicate that the next map move is programmatic and not user-initiated
   
@@ -271,11 +274,15 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   
       if (map) {
         // Center the map and fit the bounds
-        map.fitBounds(bounds, {
-          padding: 50, // Adjust padding as needed
-          maxZoom: 10, // Optionally set a maximum zoom level
+        const center = bounds.getCenter();
+
+        // Use map.flyTo to smoothly pan and zoom the map
+        map.flyTo({
+          center: [center.lng, center.lat],
+          zoom: 10, // This is a fixed zoom level, consider adjusting based on your needs
+          padding: 50, // Padding is not directly supported by flyTo, you might need to adjust zoom or center manually
         });
-  
+    
         // Reset mapMoved after a short delay to allow for user movements again
         //setTimeout(() => setMapMoved(false), 1000);
       }
