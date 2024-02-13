@@ -49,6 +49,17 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     setLocations(locationData);
   }, [locationData]);
 
+  useEffect(() => {
+    console.log('map is ready')
+  if (map) {
+    console.log('map is true')
+
+    addMarkers(map);
+
+    map.on('moveend', () => fetchEstatesInViewport(map));
+
+  }
+}, [map]);
 
   // only on first load
   useEffect(() => {
@@ -170,10 +181,11 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   // add markers seperate 
   useEffect(() => {
 
+    console.log('map is ready')
 
     if (map) {
       addMarkers(map);
-      
+
       map.on('moveend', () => fetchEstatesInViewport(map));
 
       return () => {
@@ -182,7 +194,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       };
 
     }
-  }, [Locations]);
+  }, [Locations, map, searchQuery, searchParams]);
 
 
   const fetchEstatesInViewport = useDebouncedCallback((map: mapboxgl.Map) => {
