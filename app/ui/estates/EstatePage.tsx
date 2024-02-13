@@ -33,6 +33,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   const params = new URLSearchParams(searchParams.toString())
   const [mapMoved, setMapMoved] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
+  let userDragged = false;
 
   const totalDevelopments = Locations.length;
 
@@ -184,17 +185,26 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   // add markers seperate 
   useEffect(() => {
 
-    console.log('map is ready')
 
     if (map) {
       addMarkers(map);
 
-      map.on('moveend', () => fetchEstatesInViewport(map));
+      map.on('wheel', () => fetchEstatesInViewport(map));
+      map.on('dblclick', () => fetchEstatesInViewport(map));
 
+      // Fetch estates in viewport after user-initiated drag ends
+      map.on('dragend', () => {
+          fetchEstatesInViewport(map);
+      });
+            
       return () => {
         // Clean up event listeners
-        map.off('moveend', () => fetchEstatesInViewport(map));
-      };
+        map.off('wheel', () => fetchEstatesInViewport(map));
+        map.off('dblclick', () => fetchEstatesInViewport(map));
+
+        // Handle map zoom change, including scroll wheel zooming
+        map.off('dragend', () => fetchEstatesInViewport(map));
+              };
 
     }
   }, [Locations, map, searchQuery, searchParams]);
@@ -262,33 +272,27 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   useEffect(() => {
     //setMapMoved(true);
     if (searchQuery && Locations.length > 0) {
-      // Indicate that the next map move is programmatic and not user-initiated
-  
-      // Initialize the bounds
       const bounds = new mapboxgl.LngLatBounds();
-  
-      // Extend the bounds to include all search result locations
       Locations.forEach(location => {
         bounds.extend([location.longitude, location.latitude]);
       });
   
       if (map) {
-        // Center the map and fit the bounds
-        const center = bounds.getCenter();
-
-        // Use map.flyTo to smoothly pan and zoom the map
-        map.flyTo({
-          center: [center.lng, center.lat],
-          zoom: 10, // This is a fixed zoom level, consider adjusting based on your needs
-          padding: 50, // Padding is not directly supported by flyTo, you might need to adjust zoom or center manually
+        map.fitBounds(bounds, {
+          padding: 50,
+          maxZoom: 10,
+          // Adjust these for a smoother transition similar to 'flyTo'
+          duration: 1000, // Duration of the animation in milliseconds
+          easing: (t) => t * (2 - t), // Custom easing function (optional)
         });
-    
-        // Reset mapMoved after a short delay to allow for user movements again
+  
+        // Reset mapMoved after a delay to allow for user movements again
         //setTimeout(() => setMapMoved(false), 1000);
       }
     }
-  }, [searchQuery]); // Depend on searchQuery, Locations, and map
-  
+
+  }, [searchQuery]);
+    
 
   useEffect(() => {
     // Check the viewport width when the component mounts
