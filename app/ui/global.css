@@ -33,3 +33,12 @@ input {
   max-width: 600px !important;
   max-height: 400px !important;
 }
+.mgl-map {
+  position: fixed !important;
+  height: 100% !important;
+}
+.mgl-map-container {
+  position: fixed !important;
+  height: 10% !important;
+}
+

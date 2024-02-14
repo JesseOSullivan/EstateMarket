@@ -15,7 +15,10 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import CustomPopup from './CustomPopup';
 import { createRoot } from 'react-dom/client'; // Import createRoot from React 18
 import { TotalDevelopments } from './TotalDevelopments';
-import {FetchResult} from '@/app/lib/definitions';
+import { FetchResult } from '@/app/lib/definitions';
+import Skeleton from '@mui/material/Skeleton';
+import EstateCard from './Card';
+import { on } from 'events';
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
 
 
@@ -42,32 +45,34 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     const query = searchParams.get('query');
     setSearchQuery(query); // Update the state with the current query
   }, [searchParams]);
-  
+
 
   useEffect(() => {
     setLocations(locationData);
     fetchResult.loading = false;
   }, [locationData]);
 
-  useEffect (() => {
+  useEffect(() => {
     if (map) {
-    map.on('move',   () => {
-      console.log('map is moving')
-      addMarkers(map);
-      console.log('add markers')
-      
-      fetchEstatesInViewport(map)
-      console.log('fetch')
-    }
+      map.on('move', () => {
+        console.log('map is moving')
+        addMarkers(map);
+        console.log('add markers')
+
+        fetchEstatesInViewport(map)
+        console.log('fetch')
+      }
 
       );
-    } 
-      
-  } , []);
-  
+    }
+
+  }, []);
+
   // only on first load
   useEffect(() => {
 
+    
+    console.log('first load')
     //const params = new URLSearchParams(window.location.search);
     const centerLat = params.get('centerLat');
     const centerLng = params.get('centerLng');
@@ -87,7 +92,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
     } else {
-
+      
       const map = new mapboxgl.Map({
         container: 'map', // The container ID
         style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
@@ -102,13 +107,21 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       // Ensure map is fully loaded before adding markers and popups
       map?.on('load', () => {
         addMarkers(map);
+
       });
     }
 
-
   }, []); // Add locationData as a dependency
 
+  useEffect(() => {
+    if (map && view === 'map') { // Assuming 'view' controls visibility
+      map.resize();
+      
+    }
 
+    // handle going back to 
+  }, [view, map]); // Depend on view and map variables
+  
   const addMarkers = (map: mapboxgl.Map) => {
     // Remove existing markers
     markers.forEach(marker => marker.remove());
@@ -194,9 +207,9 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
       // Fetch estates in viewport after user-initiated drag ends
       map.on('dragend', () => {
-          fetchEstatesInViewport(map);
+        fetchEstatesInViewport(map);
       });
-            
+
       return () => {
         // Clean up event listeners
         map.off('wheel', () => fetchEstatesInViewport(map));
@@ -204,7 +217,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
         // Handle map zoom change, including scroll wheel zooming
         map.off('dragend', () => fetchEstatesInViewport(map));
-              };
+      };
 
     }
   }, [Locations, map, searchQuery, searchParams]);
@@ -280,21 +293,21 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       Locations.forEach(location => {
         bounds.extend([location.longitude, location.latitude]);
       });
-  
+
       if (map) {
         map.fitBounds(bounds, {
           padding: 50,
           maxZoom: 10,
           // Adjust these for a smoother transition similar to 'flyTo'
         });
-  
+
         // Reset mapMoved after a delay to allow for user movements again
         //setTimeout(() => setMapMoved(false), 1000);
       }
     }
 
   }, [searchQuery, Locations, map]);
-    
+
 
   useEffect(() => {
     // Check the viewport width when the component mounts
@@ -321,7 +334,13 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
   const toggleView = () => {
     setView(prevView => prevView === 'map' ? 'list' : 'map');
+    setMap(map)
   };
+
+  useEffect(() => {
+    console.log(Locations)
+  }
+    , [Locations]);
 
 
   return (
@@ -333,10 +352,11 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
           {view === 'map' ? (
             <Grid container>
               <Grid item xs={12} md={8} lg={8} style={{ position: 'relative' }}>
-                <div id="map" style={{ width: '100%', height: '100%' }}>
+                <div id="map" style={{ width: 'auto', height: '100vh' }}>
                   {/* New: TotalDevelopments component */}
-                  <TotalDevelopments total={ totalDevelopments} loading={fetchResult.loading} />
+                    <TotalDevelopments total={totalDevelopments} loading={fetchResult.loading} />
                 </div>
+
               </Grid>
             </Grid>
           ) : (
@@ -345,24 +365,9 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
                 <Search placeholder="Search Estates" />
               </div>
               <Grid container spacing={2} style={{ padding: '20px' }}>
-                {Locations.map((locaiton, index) => (
+                {Locations.map((location, index) => (
                   <Grid item xs={12} key={index}>
-                    <Card>
-                      <CardMedia
-                        component="img"
-                        height="140"
-                        image='https://via.placeholder.com/150'
-                        alt={String(locaiton.citycouncil)} // Ensure addressid is converted to a string
-                      />
-                      <CardContent>
-                        <Typography gutterBottom variant="h5" component="div">
-                          {locaiton.estatename}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {locaiton.growthregion}
-                        </Typography>
-                      </CardContent>
-                    </Card>
+                    <EstateCard estate={location} loading={fetchResult.loading} /> {/* Pass loading state as a prop */}
                   </Grid>
                 ))}
               </Grid>
@@ -377,33 +382,18 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       ) : (
         // Non-mobile view
         <Grid container >
-              <Grid item xs={12} md={8} lg={8} style={{ position: 'relative' }}>
-                <div id="map" style={{ width: '100%', height: '100%' }}>
-                  {/* New: TotalDevelopments component */}
-                 <TotalDevelopments total={ totalDevelopments} loading={fetchResult.loading} />
-                </div>
-              </Grid>
+          <Grid item xs={12} md={8} lg={8} style={{ position: 'relative' }}>
+            <div id="map" style={{ width: '100%', height: '100%' }}>
+              {/* New: TotalDevelopments component */}
+              <TotalDevelopments total={totalDevelopments} loading={fetchResult.loading} />
+            </div>
+          </Grid>
           <Grid item xs={12} sm={4} md={4} lg={4} style={{ overflowY: 'auto', height: '100vh', padding: '20px' }}>
             <Search placeholder="Search Estates" />
             <Grid className='pt-10' container spacing={2}>
               {Locations.map((location, index) => (
                 <Grid item xs={12} sm={12} md={12} lg={6} key={index}>
-                  <Card>
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      image='https://via.placeholder.com/150'
-                      alt={String(location.citycouncil)} // Ensure addressid is converted to a string
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {location.estatename}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {location.growthregion}
-                      </Typography>
-                    </CardContent>
-                  </Card>
+                  <EstateCard estate={location} loading={fetchResult.loading} /> {/* Pass loading state as a prop */}
                 </Grid>
               ))}
             </Grid>

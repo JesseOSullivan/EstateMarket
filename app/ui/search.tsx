@@ -16,7 +16,6 @@ import { fetchSearchTerms } from '@/app/lib/actions';
 import { useDebouncedCallback } from 'use-debounce';
 import CircularProgress from '@mui/material/CircularProgress'; // Import MUI CircularProgress for loading indicator
 import { Divider, Typography } from '@mui/material';
-import {FetchResult} from '@/app/lib/definitions';
 
 type SearchProps = {
   placeholder: string;
@@ -37,7 +36,6 @@ export default function Search({ placeholder }: SearchProps) {
   const [options, setOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); // New loading state
   const [isSearchBarClicked, setIsSearchBarClicked] = useState(false);
-  const [fetchResult, setFetchResult] = useState<FetchResult>({ data: [], loading: true });
 
   const debounceFetch = useDebouncedCallback(async (value: string) => {
     setLoading(true); // Set loading to true before fetching data
@@ -140,17 +138,17 @@ export default function Search({ placeholder }: SearchProps) {
 
     // Concatenate new search values with existing recent searches
     recentSearches = recentSearches.concat(values);
-  
+
     // Filter out duplicates from recent searches
     recentSearches = recentSearches.filter((value, index, self) => self.indexOf(value) === index);
-  
+
     // Limit recent searches to a certain number, for example, 10
     recentSearches = recentSearches.slice(0, 10);
-  
+
     // Save updated recent searches to localStorage
     console.log('adding ' + recentSearches);
     localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-  
+
     const params = new URLSearchParams(searchParams);
     if (values.length > 0) {
       params.set('query', values.join(','));
@@ -180,7 +178,8 @@ export default function Search({ placeholder }: SearchProps) {
     // Ensure 'estates' is only appended if not already in pathname
     const newPath = pathname.endsWith('/estates') ? pathname : `${pathname}estates`;
     router.replace(`${newPath}?${params.toString()}`);
-  }
+
+    }
 
 
   const renderTags = (value: string[], getTagProps: (value: any) => any) =>
@@ -188,15 +187,15 @@ export default function Search({ placeholder }: SearchProps) {
       <Chip key={index} label={option} {...getTagProps({ index })} />
     ));
 
-    const handleClearSearchHistory = () => {
-      // Clear recent searches from local storage
-      localStorage.removeItem('recentSearches');
-      // Clear options in state
-      setOptions([]);
-    };
-    
+  const handleClearSearchHistory = () => {
+    // Clear recent searches from local storage
+    localStorage.removeItem('recentSearches');
+    // Clear options in state
+    setOptions([]);
+  };
 
-  
+
+
   return (
     <Box className="relative flex   items-center justify-center w-full md:max-w-3xl bg-white shadow-lg"
       style={{ borderRadius: '30px' }}>
@@ -211,7 +210,7 @@ export default function Search({ placeholder }: SearchProps) {
 
         loading={loading}
         loadingText={<>
-        
+
 
           <Box display="flex" alignItems="center">
             <CircularProgress className='mt-1 mb-1' size={30} thickness={5} style={{ color: "#007bff", fontSize: '30px' }} />
@@ -230,34 +229,34 @@ export default function Search({ placeholder }: SearchProps) {
             return (
 
               <div>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="space-between"
-                style={{ padding: '8px',  borderRadius: '4px' }}
-              >
-                <strong style={{ color: '#007bff', marginRight: '8px', userSelect: 'none' }}>Recent Searches:</strong>
-                <button
-                  style={{
-                    fontStyle: 'italic',
-                    color: '#007bff',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                  }}
-                  onClick={handleClearSearchHistory} // assuming `handleClear` is the function to trigger
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  style={{ padding: '8px', borderRadius: '4px' }}
                 >
-                  Clear
-                </button>
-              </Box>
-              <Divider />
-            </div>
-                    );
+                  <strong style={{ color: '#007bff', marginRight: '8px', userSelect: 'none' }}>Recent Searches:</strong>
+                  <button
+                    style={{
+                      fontStyle: 'italic',
+                      color: '#007bff',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                    }}
+                    onClick={handleClearSearchHistory} // assuming `handleClear` is the function to trigger
+                  >
+                    Clear
+                  </button>
+                </Box>
+                <Divider />
+              </div>
+            );
           }
           return <div {...props}>{option}</div>;
         }}
-              
+
         getOptionDisabled={(option) => option === "buttons"}
         value={selectedOptions}
         // Remove the duplicate onChange attribute
@@ -269,9 +268,9 @@ export default function Search({ placeholder }: SearchProps) {
           input: 'input-input',
           popupIndicator: 'hidden',
           clearIndicator: 'hidden',
-          
+
         }}
-        
+
         renderInput={(params) => (
           <Box display="flex" alignItems="center" style={{ borderRadius: '30px', background: '#fff' }}>
             <TextField
@@ -301,7 +300,7 @@ export default function Search({ placeholder }: SearchProps) {
                 <TuneIcon />
               </IconButton>
               <IconButton className="p-2" onClick={handleSearchButtonClick}>
-                <SearchIcon />
+              <SearchIcon />
               </IconButton>
             </Box>
           </Box>
