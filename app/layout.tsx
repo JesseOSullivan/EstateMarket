@@ -18,12 +18,12 @@ export default function RootLayout({
           <html>
 
       <body style={{backgroundColor:'#f8f9fa'}} className={`${inter.className} antialiased`}>       
-      <div className="fixed top-0 left-0 right-0 z-50">    
+
+        <div className='sticky top-0  z-50'>
          <Navbar />
-      </div>
+         </div>
 
-
-      <div className="pt-20"> {/* Add top padding to push content below the navbar */}
+      <div > {/* Add top padding to push content below the navbar */}
           {children}
         </div>
       

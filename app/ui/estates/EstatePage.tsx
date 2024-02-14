@@ -338,9 +338,20 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   };
 
   useEffect(() => {
-    console.log(Locations)
-  }
-    , [Locations]);
+    if (view === 'list') {
+      // remove params which also ensure map area is not in search
+     params.delete('swLat');
+     params.delete('swLng');
+     params.delete('neLat');
+     params.delete('neLng');
+     params.delete('centerLat');
+     params.delete('centerLng');
+     params.delete('zoom');
+     router.replace(`${pathname}?${params.toString()}`);
+
+   }
+ }
+    , [view]);
 
 
   return (
@@ -354,14 +365,18 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
               <Grid item xs={12} md={8} lg={8} style={{ position: 'relative' }}>
                 <div id="map" style={{ width: 'auto', height: '100vh' }}>
                   {/* New: TotalDevelopments component */}
-                    <TotalDevelopments total={totalDevelopments} loading={fetchResult.loading} />
+                  <Box sx={{ position: 'fixed',  left: 0, right: 0,   }}>
+
+                  <TotalDevelopments total={totalDevelopments} loading={fetchResult.loading} />
+                  </Box>
+
                 </div>
 
               </Grid>
             </Grid>
           ) : (
             <>
-              <div className='px-2' style={{ position: 'sticky', top: '90px', zIndex: 10 }}> {/* Make search bar stick just below the navbar */}
+              <div className='px-2' style={{ position: 'sticky', top: '90px', zIndex: 1 }}> {/* Make search bar stick just below the navbar */}
                 <Search placeholder="Search Estates" />
               </div>
               <Grid container spacing={2} style={{ padding: '20px' }}>
@@ -374,6 +389,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
             </>
           )}
           <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, p: 1, display: 'flex', justifyContent: 'center', }}>
+            
             <Button style={{ color: '#fff', backgroundColor: theme.palette.primary.main, }} variant="contained" onClick={toggleView}>
               Switch to {view === 'map' ? 'List' : 'Map'}
             </Button>

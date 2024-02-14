@@ -1,8 +1,11 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 
 export const TotalDevelopments = ({ total, loading }: { total: number; loading: boolean }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if it's a mobile device
+
   return (
     <Box
       sx={{
@@ -14,18 +17,18 @@ export const TotalDevelopments = ({ total, loading }: { total: number; loading: 
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
         padding: '5px 15px',
         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.3)',
-        zIndex: 1000, // Ensure it's above the map
+        zIndex: 5, // Ensure it's above the map
         display: 'flex',
         alignItems: 'center', // Align items vertically
       }}
     >
       {loading ? (
-        <React.Fragment>
-          <CircularProgress size={24} color="primary" sx={{ marginRight: '10px' }} />
-          <Typography variant="body1">Searching</Typography>
+        <React.Fragment>&nbsp;&nbsp;
+          <CircularProgress size={ isMobile ? 18 : 24} color="primary" sx={{ marginRight: '10px' }} />
+          <Typography variant="body2" sx={{ fontSize: isMobile ? '0.75rem' : '1rem' }}>Searching&nbsp;&nbsp;&nbsp;&nbsp;</Typography> {/* Custom font size for smaller text on mobile */}
         </React.Fragment>
       ) : (
-        <Typography variant="body1">Showing {total} Developments</Typography>
+        <Typography variant="body2" sx={{ fontSize: isMobile ? '0.75rem' : '1rem' }}>Showing {total} Developments</Typography> 
       )}
     </Box>
   );

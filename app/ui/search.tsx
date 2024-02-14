@@ -16,6 +16,7 @@ import { fetchSearchTerms } from '@/app/lib/actions';
 import { useDebouncedCallback } from 'use-debounce';
 import CircularProgress from '@mui/material/CircularProgress'; // Import MUI CircularProgress for loading indicator
 import { Divider, Typography } from '@mui/material';
+import { set } from 'zod';
 
 type SearchProps = {
   placeholder: string;
@@ -116,7 +117,12 @@ export default function Search({ placeholder }: SearchProps) {
   useEffect(() => {
     const query = searchParams.get('query');
     if (searchParams.get('swLat')) {
+
       setSelectedOptions(["Map Area"]);
+    }
+    else {
+      // remove Map Area on mobiel view list 
+      setSelectedOptions([]);
     }
     // if map area is in selected options, remove it
     if (query) {

@@ -62,8 +62,8 @@ export const Navbar = () => {
 
   
   return (
-
-    <div style={{ backgroundColor: theme.palette.background.default }} className="flex justify-between items-center h-20 px-4 fixed top-0 left-0 right-0">
+    
+    <div style={{ backgroundColor: theme.palette.background.default,  }} className="flex justify-between items-center h-20 px-4   left-0 right-0 w-full">
       {/* Logo */}
       <div className="flex justify-center w-full md:w-auto">
         <Link href={`/`}>
