@@ -28,7 +28,7 @@ export const TotalDevelopments = ({ total, loading }: { total: number; loading: 
           <Typography variant="body2" sx={{ fontSize: isMobile ? '0.75rem' : '1rem' }}>Searching&nbsp;&nbsp;&nbsp;&nbsp;</Typography> {/* Custom font size for smaller text on mobile */}
         </React.Fragment>
       ) : (
-        <Typography variant="body2" sx={{ fontSize: isMobile ? '0.75rem' : '1rem' }}>Showing {total} Developments</Typography> 
+        <Typography variant="body2" sx={{ fontSize: isMobile  ? '0.75rem' : '1rem' }}>Showing { total} Developments</Typography> 
       )}
     </Box>
   );

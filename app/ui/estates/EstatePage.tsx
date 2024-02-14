@@ -16,9 +16,7 @@ import CustomPopup from './CustomPopup';
 import { createRoot } from 'react-dom/client'; // Import createRoot from React 18
 import { TotalDevelopments } from './TotalDevelopments';
 import { FetchResult } from '@/app/lib/definitions';
-import Skeleton from '@mui/material/Skeleton';
 import EstateCard from './Card';
-import { on } from 'events';
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
 
 
@@ -271,7 +269,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
         const { data, loading } = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng);
         setFetchResult({ data, loading });
         setLocations(data);
-        setFetchResult({ data, loading: false });
+        setFetchResult(prevState => ({ ...prevState, loading: true })); // Set loading to true before fetching data
       } catch (error) {
         console.error('Error fetching location data:', error);
       }
