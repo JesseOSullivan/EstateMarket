@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { SearchResult } from './definitions';
+import { SearchResult, FetchResult } from './definitions';
 const FormSchema = z.object({
     id: z.string(),
     customerId: z.string(),
@@ -71,27 +71,27 @@ export async function updateInvoice(id: string, formData: FormData) {
 export async function deleteInvoice(id: string) {
 
     try {
-      await sql`DELETE FROM invoices WHERE id = ${id}`;
-      revalidatePath('/dashboard/invoices');
-      return { message: 'Deleted Invoice.' };
+        await sql`DELETE FROM invoices WHERE id = ${id}`;
+        revalidatePath('/dashboard/invoices');
+        return { message: 'Deleted Invoice.' };
     } catch (error) {
-      return { message: 'Database Error: Failed to Delete Invoice.' };
+        return { message: 'Database Error: Failed to Delete Invoice.' };
     }
-  }
+}
+  
 
 
-
-  export async function fetchSearchTerms(searchTerms: string) {
+export async function fetchSearchTerms(searchTerms: string) {
     try {
-      console.log('Fetching search location data...');
-      if (searchTerms && searchTerms.length > 0) {
-        console.log(searchTerms);
-  
-        const client = createClient(); // Create a new client
-        await client.connect(); // Connect to the database
-  
-        try {
-          const query = `
+        console.log('Fetching search location data...');
+        if (searchTerms && searchTerms.length > 0) {
+            console.log(searchTerms);
+
+            const client = createClient(); // Create a new client
+            await client.connect(); // Connect to the database
+
+            try {
+                const query = `
           (
             SELECT DISTINCT e.estatename AS result
             FROM estate e
@@ -137,45 +137,49 @@ export async function deleteInvoice(id: string) {
             WHERE a.postcode ILIKE '%${searchTerms}%'
         );
                   `;
-            console.log(query);
-          // Execute the query
-          const result = await client.query(query);
-            console.log(result.rows);
-          return result.rows;
-        } finally {
-          await client.end(); // Disconnect from the database
+                console.log(query);
+                // Execute the query
+                const result = await client.query(query);
+                console.log(result.rows);
+                return result.rows;
+            } finally {
+                await client.end(); // Disconnect from the database
+            }
+        } else {
+            // If no search terms provided, return empty array or handle as appropriate
+            return [];
         }
-      } else {
-        // If no search terms provided, return empty array or handle as appropriate
-        return [];
-      }
     } catch (error) {
-      console.error('Error fetching search location data:', error);
-      throw error;
+        console.error('Error fetching search location data:', error);
+        throw error;
     }
-  }
-    
-  
+}
 
-  
-  const locationCache = new Map();
 
-  function generateCacheKey(swLat: number, swLng: number, neLat: number, neLng: number, precision = 1) {
+
+
+const locationCache = new Map();
+
+function generateCacheKey(swLat: number, swLng: number, neLat: number, neLng: number, precision = 1) {
     // Round the coordinates to reduce sensitivity to minor map movements
     const round = (num: number) => Math.round(num * Math.pow(10, precision)) / Math.pow(10, precision);
     return `locations-${round(swLat)}-${round(swLng)}-${round(neLat)}-${round(neLng)}`;
-  }
-  
-  export async function fetchLocationByCoordAction(swLat: number, swLng: number, neLat: number, neLng: number, ) {
-  // Create a unique key for each set of coordinates
-  const cacheKey = generateCacheKey(swLat, swLng, neLat, neLng);
-  // Check if the result is in the cache
-  if (locationCache.has(cacheKey)) {
-    console.log(`Cache hit for key: ${cacheKey}`);
-    return locationCache.get(cacheKey); // Return cached result
-  } else {
-    console.log(`Cache miss for key: ${cacheKey}. Querying database...`);
-    const result = await sql<SearchResult>`
+}
+
+export async function fetchLocationByCoordAction(swLat: number, swLng: number, neLat: number, neLng: number): Promise<FetchResult> {
+    let Isloading = true;
+    let result = [] as SearchResult[];
+    try {
+
+    // Create a unique key for each set of coordinates
+    const cacheKey = generateCacheKey(swLat, swLng, neLat, neLng);
+    // Check if the result is in the cache
+    if (locationCache.has(cacheKey)) {
+        console.log(`Cache hit for key: ${cacheKey}`);
+        return locationCache.get(cacheKey); // Return cached result
+    } else {
+        console.log(`Cache miss for key: ${cacheKey}. Querying database...`);
+        const result = await sql<SearchResult>`
       SELECT
         e.estateid,
         e.estatename,
@@ -210,8 +214,10 @@ export async function deleteInvoice(id: string) {
         l.latitude BETWEEN ${swLat} AND ${neLat} AND
         l.longitude BETWEEN ${swLng} AND ${neLng};
     `;
-    locationCache.set(cacheKey, result);
-    return result;
+        locationCache.set(cacheKey, result);
+    }
+} finally {
+    Isloading = false;
   }
+  return { data: result, loading: Isloading };
 }
-  

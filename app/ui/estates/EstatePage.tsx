@@ -15,8 +15,7 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import CustomPopup from './CustomPopup';
 import { createRoot } from 'react-dom/client'; // Import createRoot from React 18
 import { TotalDevelopments } from './TotalDevelopments';
-import { set } from 'zod';
-
+import {FetchResult} from '@/app/lib/definitions';
 mapboxgl.accessToken = 'pk.eyJ1IjoiamVzc2Utb3N1bGxpdmFuIiwiYSI6ImNsczV6YTF3ODFjdGIya2w4MWozYW14YmcifQ.zO0G8xIzWO9RH367as02Dg';
 
 
@@ -33,7 +32,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   const params = new URLSearchParams(searchParams.toString())
   const [mapMoved, setMapMoved] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
-  let userDragged = false;
+  const [fetchResult, setFetchResult] = useState<FetchResult>({ data: [], loading: true });
 
   const totalDevelopments = Locations.length;
 
@@ -47,6 +46,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
   useEffect(() => {
     setLocations(locationData);
+    fetchResult.loading = false;
   }, [locationData]);
 
   useEffect (() => {
@@ -252,10 +252,15 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
     const updateData = async () => {
-      const t = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng)
-      if (t) {
-        setLocations(t.rows);
+      setFetchResult(prevState => ({ ...prevState, loading: true })); // Set loading to true before fetching data
 
+      try {
+        const { data, loading } = await fetchLocationByCoordAction(swLat, swLng, neLat, neLng);
+        setFetchResult({ data, loading });
+        setLocations(data);
+        setFetchResult({ data, loading: false });
+      } catch (error) {
+        console.error('Error fetching location data:', error);
       }
     }
     if (swLat && swLng && neLat && neLng) {
@@ -263,8 +268,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
     }
 
- 
-  
+
   }, 400);
 
 
@@ -282,8 +286,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
           padding: 50,
           maxZoom: 10,
           // Adjust these for a smoother transition similar to 'flyTo'
-          duration: 1000, // Duration of the animation in milliseconds
-          easing: (t) => t * (2 - t), // Custom easing function (optional)
         });
   
         // Reset mapMoved after a delay to allow for user movements again
@@ -291,7 +293,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       }
     }
 
-  }, [searchQuery]);
+  }, [searchQuery, Locations, map]);
     
 
   useEffect(() => {
@@ -333,7 +335,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
               <Grid item xs={12} md={8} lg={8} style={{ position: 'relative' }}>
                 <div id="map" style={{ width: '100%', height: '100%' }}>
                   {/* New: TotalDevelopments component */}
-                  <TotalDevelopments total={totalDevelopments} />
+                  <TotalDevelopments total={ totalDevelopments} loading={fetchResult.loading} />
                 </div>
               </Grid>
             </Grid>
@@ -378,7 +380,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
               <Grid item xs={12} md={8} lg={8} style={{ position: 'relative' }}>
                 <div id="map" style={{ width: '100%', height: '100%' }}>
                   {/* New: TotalDevelopments component */}
-                  <TotalDevelopments total={totalDevelopments} />
+                 <TotalDevelopments total={ totalDevelopments} loading={fetchResult.loading} />
                 </div>
               </Grid>
           <Grid item xs={12} sm={4} md={4} lg={4} style={{ overflowY: 'auto', height: '100vh', padding: '20px' }}>

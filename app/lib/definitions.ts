@@ -117,3 +117,7 @@ export type SearchResult = {
 }
 
 
+export interface FetchResult {
+  data: SearchResult[];
+  loading: boolean;
+}

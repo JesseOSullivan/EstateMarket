@@ -16,7 +16,7 @@ import { fetchSearchTerms } from '@/app/lib/actions';
 import { useDebouncedCallback } from 'use-debounce';
 import CircularProgress from '@mui/material/CircularProgress'; // Import MUI CircularProgress for loading indicator
 import { Divider, Typography } from '@mui/material';
-import { set } from 'zod';
+import {FetchResult} from '@/app/lib/definitions';
 
 type SearchProps = {
   placeholder: string;
@@ -37,7 +37,7 @@ export default function Search({ placeholder }: SearchProps) {
   const [options, setOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false); // New loading state
   const [isSearchBarClicked, setIsSearchBarClicked] = useState(false);
-  const [showRecentSearches, setShowRecentSearches] = useState(false); // State to manage recent searches visibility
+  const [fetchResult, setFetchResult] = useState<FetchResult>({ data: [], loading: true });
 
   const debounceFetch = useDebouncedCallback(async (value: string) => {
     setLoading(true); // Set loading to true before fetching data
