@@ -69,7 +69,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   // only on first load
   useEffect(() => {
 
-    
+
     console.log('first load')
     //const params = new URLSearchParams(window.location.search);
     const centerLat = params.get('centerLat');
@@ -90,7 +90,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
     } else {
-      
+
       const map = new mapboxgl.Map({
         container: 'map', // The container ID
         style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
@@ -111,15 +111,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
   }, []); // Add locationData as a dependency
 
-  useEffect(() => {
-    if (map && view === 'map') { // Assuming 'view' controls visibility
-      map.resize();
-      
-    }
-
-    // handle going back to 
-  }, [view, map]); // Depend on view and map variables
-  
   const addMarkers = (map: mapboxgl.Map) => {
     // Remove existing markers
     markers.forEach(marker => marker.remove());
@@ -327,29 +318,38 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [view]);
 
 
   const toggleView = () => {
     setView(prevView => prevView === 'map' ? 'list' : 'map');
-    setMap(map)
   };
 
   useEffect(() => {
     if (view === 'list') {
       // remove params which also ensure map area is not in search
-     params.delete('swLat');
-     params.delete('swLng');
-     params.delete('neLat');
-     params.delete('neLng');
-     params.delete('centerLat');
-     params.delete('centerLng');
-     params.delete('zoom');
-     router.replace(`${pathname}?${params.toString()}`);
+      params.delete('swLat');
+      params.delete('swLng');
+      params.delete('neLat');
+      params.delete('neLng');
+      params.delete('centerLat');
+      params.delete('centerLng');
+      params.delete('zoom');
+      router.replace(`${pathname}?${params.toString()}`);
+    }
+    if (map && view === 'map') { // Assuming 'view' controls visibility
+      map.resize();
+      map?.on('load', () => {
+        addMarkers(map);
 
-   }
- }
-    , [view]);
+      });
+
+    }
+
+
+
+  }
+    , [view, map]);
 
 
   return (
@@ -363,9 +363,9 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
               <Grid item xs={12} md={8} lg={8} style={{ position: 'relative' }}>
                 <div id="map" style={{ width: 'auto', height: '100vh' }}>
                   {/* New: TotalDevelopments component */}
-                  <Box sx={{ position: 'fixed',  left: 0, right: 0,   }}>
+                  <Box sx={{ position: 'fixed', left: 0, right: 0, }}>
 
-                  <TotalDevelopments total={totalDevelopments} loading={fetchResult.loading} />
+                    <TotalDevelopments total={totalDevelopments} loading={fetchResult.loading} />
                   </Box>
 
                 </div>
@@ -387,7 +387,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
             </>
           )}
           <Box sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, p: 1, display: 'flex', justifyContent: 'center', }}>
-            
+
             <Button style={{ color: '#fff', backgroundColor: theme.palette.primary.main, }} variant="contained" onClick={toggleView}>
               Switch to {view === 'map' ? 'List' : 'Map'}
             </Button>
