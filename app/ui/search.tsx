@@ -104,12 +104,10 @@ export default function Search({ placeholder }: SearchProps) {
 
     // if map area is in selected options, remove it
     if (selectedOptions.includes("Map Area")) {
-      console.log('map area');
       const newSelectedOptions = selectedOptions.filter(option => option !== "Map Area");
       setSelectedOptions(newSelectedOptions);
       executeSearch(newSelectedOptions);
     }
-    console.log('search bar clicked');
     // Update state to indicate that search bar is clicked
     setIsSearchBarClicked(true);
   };

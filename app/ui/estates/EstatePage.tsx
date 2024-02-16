@@ -340,12 +340,6 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   useEffect(() => {
     if (view === 'list') {
       // remove params which also ensure map area is not in search bar on switch
-      params.delete('swLat');
-      params.delete('swLng');
-      params.delete('neLat');
-      params.delete('neLng');
-      params.delete('centerLat');
-      params.delete('centerLng');
       params.delete('zoom');
       //router.replace(`${pathname}?${params.toString()}`);
     }
