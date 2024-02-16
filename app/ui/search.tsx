@@ -185,7 +185,7 @@ export default function Search({ placeholder }: SearchProps) {
     const newPath = pathname.endsWith('/estates') ? pathname : `${pathname}estates`;
     router.replace(`${newPath}?${params.toString()}`);
 
-    }
+  }
 
 
   const renderTags = (value: string[], getTagProps: (value: any) => any) =>
@@ -306,7 +306,7 @@ export default function Search({ placeholder }: SearchProps) {
                 <TuneIcon />
               </IconButton>
               <IconButton className="p-2" onClick={handleSearchButtonClick}>
-              <SearchIcon />
+                <SearchIcon />
               </IconButton>
             </Box>
           </Box>
