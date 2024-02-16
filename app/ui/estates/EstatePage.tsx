@@ -4,7 +4,7 @@
 import React, { use, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Search from '@/app/ui/search'; // Assuming the Search component is saved in components folder
-import { Box, Card, CardContent, CardMedia, Typography, Grid, Button, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Grid, Button, useTheme } from '@mui/material';
 import "mapbox-gl/dist/mapbox-gl.css";
 import {
   SearchResult
@@ -69,17 +69,20 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
   // only on first load
   useEffect(() => {
 
-
-    console.log('first load')
+    console.log('view', view)
     //const params = new URLSearchParams(window.location.search);
     const centerLat = params.get('centerLat');
     const centerLng = params.get('centerLng');
     const zoom = params.get('zoom');
+    // 
     if (view != 'map') return;
 
 
     if (centerLat && centerLng && zoom) {
+      console.log("map loaded with params")
       const map = new mapboxgl.Map({
+        trackResize: true,
+
         container: 'map', // The container ID
         style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
         center: [parseFloat(centerLng), parseFloat(centerLat)], // Coordinates of Cairns: [longitude, latitude]
@@ -90,8 +93,10 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
     } else {
-
+      console.log("map loaded without params")
       const map = new mapboxgl.Map({
+        trackResize: true,
+
         container: 'map', // The container ID
         style: 'mapbox://styles/mapbox/streets-v11', // The map style URL
         center: Locations[0] ? [Locations[0].longitude, Locations[0].latitude] : [133.7751, -30], // coord of center australia 
@@ -109,7 +114,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       });
     }
 
-  }, []); // Add locationData as a dependency
+  }, [view]); // Add locationData as a dependency
 
   const addMarkers = (map: mapboxgl.Map) => {
     // Remove existing markers
@@ -322,12 +327,19 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
 
   const toggleView = () => {
+    // Toggle the view state
     setView(prevView => prevView === 'map' ? 'list' : 'map');
+
+    // Show or hide the map div based on the new view state
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+      mapElement.style.display = view === 'map' ? 'block' : 'none';
+    }
   };
 
   useEffect(() => {
     if (view === 'list') {
-      // remove params which also ensure map area is not in search
+      // remove params which also ensure map area is not in search bar on switch
       params.delete('swLat');
       params.delete('swLng');
       params.delete('neLat');
@@ -335,25 +347,21 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       params.delete('centerLat');
       params.delete('centerLng');
       params.delete('zoom');
-      router.replace(`${pathname}?${params.toString()}`);
+      //router.replace(`${pathname}?${params.toString()}`);
     }
     if (map && view === 'map') { // Assuming 'view' controls visibility
-      map.resize();
-      map?.on('load', () => {
-        addMarkers(map);
+      
 
-      });
-
+      map.resize(); // Resize map to fit new container dimensions
     }
-
-
 
   }
     , [view, map]);
 
 
+
   return (
-    <Box sx={{ position: 'relative', height: '100vh' }}>
+    <Box sx={{ }}>
 
       {isMobile ? (
         <>
