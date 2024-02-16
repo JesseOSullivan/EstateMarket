@@ -34,3 +34,6 @@ input {
   max-height: 400px !important;
 }
 
+.border-3 {
+  border-width: 3px !important;
+}

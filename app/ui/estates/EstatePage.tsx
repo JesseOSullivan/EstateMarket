@@ -142,8 +142,7 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       // Create a new HTML element to use as a custom marker
       const el = document.createElement('div');
       // Apply Tailwind CSS classes for styling the custom marker
-      el.className = 'w-6 h-6 shadow border-4   border-white rounded-full bg-primary-main';
-
+      el.className = 'w-5 h-5 shadow border-3 border-white rounded-full bg-primary-main';
 
       el.addEventListener('mouseenter', () => {
         el.classList.remove('bg-primary-main');
@@ -170,15 +169,15 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
 
       popup.on('open', () => {
         el.classList.add('bg-blue-800');
-        el.classList.add('w-7');
-        el.classList.add('h-7');
+        el.classList.add('w-6');
+        el.classList.add('h-6');
       });
 
       popup.on('close', () => {
 
         el.classList.remove('bg-blue-800');
-        el.classList.remove('w-7');
-        el.classList.remove('h-7');
+        el.classList.remove('w-6');
+        el.classList.remove('h-6');
         el.classList.add('bg-primary-main');
 
       });
