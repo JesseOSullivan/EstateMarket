@@ -147,16 +147,16 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       el.addEventListener('mouseenter', () => {
         el.classList.remove('bg-primary-main');
         el.classList.add('bg-blue-800');
-        el.classList.add('w-7');
-        el.classList.add('h-7');
+        el.classList.add('w-6');
+        el.classList.add('h-6');
 
       });
 
       el.addEventListener('mouseleave', () => {
         if (!popup.isOpen()) { // Only remove hover effect if popup is closed
           el.classList.remove('bg-blue-800');
-          el.classList.remove('w-7');
-          el.classList.remove('h-7');
+          el.classList.remove('w-6');
+          el.classList.remove('h-6');
           el.classList.add('bg-primary-main');
         }
       });
@@ -362,14 +362,11 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
           {view === 'map' ? (
             <Grid container>
               <Grid item xs={12} md={8} lg={8} style={{ position: 'relative' }}>
-                <div id="map" style={{ width: 'auto', height: '100vh' }}>
+
+              <div id="map" style={{ display: view === 'map' ? 'block' : 'none', width: '100%', height: '100vh' }} />
                   {/* New: TotalDevelopments component */}
-                  <Box sx={{ position: 'fixed', left: 0, right: 0, }}>
+                  <TotalDevelopments total={totalDevelopments} loading={fetchResult.loading} />
 
-                    <TotalDevelopments total={totalDevelopments} loading={fetchResult.loading} />
-                  </Box>
-
-                </div>
 
               </Grid>
             </Grid>
