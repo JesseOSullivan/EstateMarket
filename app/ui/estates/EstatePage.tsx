@@ -147,16 +147,16 @@ const EstatesPage = ({ locationData }: { locationData: SearchResult[] }) => {
       el.addEventListener('mouseenter', () => {
         el.classList.remove('bg-primary-main');
         el.classList.add('bg-blue-800');
-        el.classList.add('w-7');
-        el.classList.add('h-7');
+        el.classList.add('w-6');
+        el.classList.add('h-6');
 
       });
 
       el.addEventListener('mouseleave', () => {
         if (!popup.isOpen()) { // Only remove hover effect if popup is closed
           el.classList.remove('bg-blue-800');
-          el.classList.remove('w-7');
-          el.classList.remove('h-7');
+          el.classList.remove('w-6');
+          el.classList.remove('h-6');
           el.classList.add('bg-primary-main');
         }
       });
