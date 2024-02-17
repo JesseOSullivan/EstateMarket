@@ -230,7 +230,7 @@ async function main() {
   try {
     // Read data from the CSV file
     const data = [];
-    fs.createReadStream('scripts/scraped_data.csv')
+    fs.createReadStream('scripts/data.csv')
       .pipe(csv())
       .on('data', (row) => {
         data.push(row);
